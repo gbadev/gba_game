@@ -3,8 +3,9 @@
 //globals
 const int screen_width = 240;
 const int screen_height = 160;
-const int map_width = 512;
-const int map_height = 512;
+
+int map_width = 512;
+int map_height = 512;
 int mtw; //map tile width
 int mth; //height
 const int bgtiles = 32*32;
@@ -21,14 +22,14 @@ unsigned short* bg2map =(unsigned short*) ScreenBaseBlock (30);
 
 int delta_x = 0, delta_y = 0;
 
-void bg_load();
-
+void bg_load(int *, int *);
+void bg_scroll( int *, int *);
 void bg_scroll_left();
 void bg_scroll_right();
 void bg_scroll_up();
 void bg_scroll_down();
 
-void bg_load()
+void bg_load(int *x, int *y)
 {
     //set up background 0
     //We are using a 256x256 Map which is placed in ScreenBaseBlock 31
@@ -44,6 +45,12 @@ void bg_load()
 	DMAFastCopy((void*)bluetileTiles, (void*)CharBaseBlock(1),128/4, DMA_32NOW);
     //4992 = #Tiles * 64
 
+	//init map vars
+	map_width = 512;
+	map_height = 512;
+	mtw = map_width / 8; 
+    mth = map_height /8;//set scrolling regitsters to upper right corner of bg
+	
     //copy the tile map into background 0
     int i, j, k = 0;
     for ( j = 0; j < 32; j++ )
@@ -53,6 +60,75 @@ void bg_load()
 			//bg2map[k] = bluetileMap[0];
 			k++;
 		}
+    
+	*x = 0;
+	REG_BG3HOFS = 0;
+	REG_BG2HOFS = 0 ;
+    *y = 0;
+	REG_BG3VOFS = 0;
+	REG_BG2VOFS = 0 ;	
+}
+
+void bg_scroll( int * x, int * y )
+{
+	//process y - axis movement first
+    //move up
+    if( Pressed ( BUTTON_UP ))
+        if ( *y > 0)
+        {
+            (*y)--;
+            delta_y--;
+        }
+
+    //move down
+    if( Pressed ( BUTTON_DOWN))
+		if ( (*y + screen_height) <  map_height )
+        {
+            (*y)++;
+            delta_y++;
+        }
+
+    //find map indexes for current position
+    yi = *y / 8; //bg y coordinate
+    xi = *x / 8; //bg x coordinate
+
+    //if you have moved 8 pixels down
+    if (delta_y == 8  )
+		bg_scroll_down();		
+    else if (delta_y == -8 )
+		bg_scroll_up();
+
+    //process x movement
+    //move left
+    if( Pressed ( BUTTON_LEFT ))
+        if ( *x > 0)
+        {
+            (*x)--;
+            delta_x--;
+        }
+		
+    //move right
+    if( Pressed ( BUTTON_RIGHT ))
+		if ( ( *x + screen_width ) < map_width)
+        {
+			(*x)++;
+            delta_x++;
+        }
+        
+    //caculate new xi
+    xi = *x / 8; //bg x coordinate
+
+    if (delta_x == 8 )
+		bg_scroll_right();
+    else if (delta_x == -8 )
+    	bg_scroll_left();
+    
+    //update scrolling registers
+    REG_BG3VOFS = *y ;
+	REG_BG2VOFS = *y ;
+    REG_BG3HOFS = *x ;
+	REG_BG2HOFS = *x ;
+		
 }
 
 void bg_scroll_left()
@@ -84,6 +160,7 @@ void bg_scroll_left()
         delta_x = 0;
     }
 }
+
 void bg_scroll_right()
 {
 	int bgstart, bgoffset, mstart, moffset, bgindex, mindex, i;
@@ -147,6 +224,7 @@ void bg_scroll_up()
         delta_y = 0;
     }
 }
+
 void bg_scroll_down()
 {
 	int bgstart, bgoffset, mstart, moffset, bgindex, mindex,i;
@@ -180,4 +258,15 @@ void bg_scroll_down()
         //reset delta y
         delta_y = 0;
     }
+}
+
+int isValidMapPosition ( int x, int y)
+//I:    a position, given by x and y coords
+//O:    none
+//R:    true if index is valid map index, false
+{
+    int result = 1;
+    if ( x < 0 || y < 0 || x >= mtw || y >= mth )
+        result = 0;
+    return result;
 }

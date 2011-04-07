@@ -1,9 +1,16 @@
 //sprite.h
 
-void sprites_init();
+void sprite_init();
 
+void sprite_set_pos( int, int , int  );
+void sprite_draw( int , int , int  );
+void sprite_update_all(int *, int *);
 
-void sprites_init()
+void DrawMoveableArea ( int);
+void DrawMoveableSquares ( int, int, int );
+void DrawMoveableSquare ( int, int);
+
+void sprite_init()
 {
 	int n, i;
 	//copy in sprite palette
@@ -33,11 +40,38 @@ void sprites_init()
     //attribute0: color mode, shape and y pos
 	for ( i =0 ; i < 4; i++)
 	{
-		SetSpritePos( i, i*128, i*128);
+		sprite_set_pos( i, i*128, i*128);
 		DrawMoveableArea ( i );
 	}
     
 	//attribute2: Image location
     sprites[0].attribute2 = 0;
     UpdateSpriteMemory();
+}
+
+void sprite_set_pos( int index, int x, int y )
+{
+	mysprites[index].x = x;
+	mysprites[index].y = y;
+}
+
+void sprite_draw( int index, int x, int y )
+{
+	sprites[index].attribute1 = SIZE_16 | x;
+	sprites[index].attribute0 = COLOR_256 | SQUARE | y;
+}
+
+
+void sprite_update_all(int *x, int *y)
+{
+	int i;
+	for ( i = 0; i < 128; i++ )
+	{
+		if ( mysprites[i].x - *x >= 0 && mysprites[i].y - *y >= 0 &&
+			mysprites[i].x - *x < 240 && mysprites[i].y - *y < 240 )
+			sprite_draw ( i, mysprites[i].x - *x, mysprites[i].y - *y );
+		else
+			sprite_draw ( i, 240, 160);
+	}
+	UpdateSpriteMemory();
 }
