@@ -6,10 +6,6 @@ void sprite_set_pos( int, int , int  );
 void sprite_draw( int , int , int  );
 void sprite_update_all(int *, int *);
 
-void DrawMoveableArea ( int);
-void DrawMoveableSquares ( int, int, int );
-void DrawMoveableSquare ( int, int);
-
 void sprite_init()
 {
 	int n, i;
@@ -36,23 +32,20 @@ void sprite_init()
     
     UpdateSpriteMemory();
     
+	//TODO : remove this crap
+    sprite_set_pos ( 0, 0, 0 );
+	sprite_set_pos ( 1, 10, 10 );
 
-    //attribute0: color mode, shape and y pos
-	for ( i =0 ; i < 4; i++)
-	{
-		sprite_set_pos( i, i*128, i*128);
-		DrawMoveableArea ( i );
-	}
-    
-	//attribute2: Image location
+	
     sprites[0].attribute2 = 0;
+	sprites[1].attribute2 = 8;
     UpdateSpriteMemory();
 }
 
 void sprite_set_pos( int index, int x, int y )
 {
-	mysprites[index].x = x;
-	mysprites[index].y = y;
+	mysprites[index].x = x * 8;
+	mysprites[index].y = y * 8;
 }
 
 void sprite_draw( int index, int x, int y )
@@ -75,3 +68,5 @@ void sprite_update_all(int *x, int *y)
 	}
 	UpdateSpriteMemory();
 }
+
+

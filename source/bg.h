@@ -8,6 +8,7 @@ int map_width = 512;
 int map_height = 512;
 int mtw; //map tile width
 int mth; //height
+int maptiles;
 const int bgtiles = 32*32;
 
 //map x,y indexes
@@ -20,6 +21,8 @@ int isValidMapPosition ( int, int );
 unsigned short* bg3map =(unsigned short*) ScreenBaseBlock (31);
 unsigned short* bg2map =(unsigned short*) ScreenBaseBlock (30);
 
+unsigned short moveableMap[4096];
+
 int delta_x = 0, delta_y = 0;
 
 void bg_load(int *, int *);
@@ -28,6 +31,17 @@ void bg_scroll_left();
 void bg_scroll_right();
 void bg_scroll_up();
 void bg_scroll_down();
+
+
+
+void DrawMoveableArea ( int,int * x, int * y);
+void DrawMoveableSquares ( int, int, int );
+void DrawMoveableSquare ( int, int);
+
+void ClearMoveableBg();
+UpdateMoveableBg(int x, int y);
+void bg_move_sprite ( int i );
+
 
 void bg_load(int *x, int *y)
 {
@@ -42,7 +56,7 @@ void bg_load(int *x, int *y)
     DMAFastCopy((void*)gravedemoPal, (void*)BGPaletteMem, 256, DMA_16NOW);
     //copy the tile images into the tile memory
     DMAFastCopy((void*)gravedemoTiles, (void*)CharBaseBlock(0), 6976/4, DMA_32NOW);
-	DMAFastCopy((void*)bluetileTiles, (void*)CharBaseBlock(1),128/4, DMA_32NOW);
+	DMAFastCopy((void*)showmovesTiles, (void*)CharBaseBlock(1),128/4, DMA_32NOW);
     //4992 = #Tiles * 64
 
 	//init map vars
@@ -50,7 +64,7 @@ void bg_load(int *x, int *y)
 	map_height = 512;
 	mtw = map_width / 8; 
     mth = map_height /8;//set scrolling regitsters to upper right corner of bg
-	
+	maptiles = mtw * mth;
     //copy the tile map into background 0
     int i, j, k = 0;
     for ( j = 0; j < 32; j++ )
@@ -67,6 +81,8 @@ void bg_load(int *x, int *y)
     *y = 0;
 	REG_BG3VOFS = 0;
 	REG_BG2VOFS = 0 ;	
+	
+	ClearMoveableBg();
 }
 
 void bg_scroll( int * x, int * y )
@@ -155,6 +171,7 @@ void bg_scroll_left()
 			//write
 			WaitVBlank();
             bg3map[ bgindex ] = gravedemoMap[ mindex ];
+			bg2map[ bgindex ] = moveableMap[ mindex ];
         }
         //reset delta x
         delta_x = 0;
@@ -184,6 +201,7 @@ void bg_scroll_right()
 			//write
 			WaitVBlank();
             bg3map[ bgindex ] = gravedemoMap[ mindex ];
+			bg2map[ bgindex ] = moveableMap[ mindex ];
         }
         //reset delta x to 0
         delta_x = 0;
@@ -219,6 +237,7 @@ void bg_scroll_up()
             //write!
 			WaitVBlank();
             bg3map[ bgindex ] = gravedemoMap[ mindex ];
+			bg2map[ bgindex ] = moveableMap[ mindex ];
         }
         //reset delta y
         delta_y = 0;
@@ -254,6 +273,7 @@ void bg_scroll_down()
             //write!
 			WaitVBlank();
             bg3map[ bgindex ] = gravedemoMap [ mindex ];
+			bg2map[ bgindex ] = moveableMap[ mindex ];
         }
         //reset delta y
         delta_y = 0;
@@ -269,4 +289,99 @@ int isValidMapPosition ( int x, int y)
     if ( x < 0 || y < 0 || x >= mtw || y >= mth )
         result = 0;
     return result;
+}
+
+void DrawMoveableArea ( int i, int * x, int * y)
+{
+	DrawMoveableSquares ( mysprites[i].x/8, mysprites[i].y/8, 10 );
+	UpdateMoveableBg( *x, *y);
+	
+	
+}
+void DrawMoveableSquares ( int x, int y, int moves )
+{
+
+	if ( gravedemoshadowMap[y * mtw + x ] != 0x1001 && x >= 0 && y >= 0 && x < mtw && y < mth)
+	{
+		DrawMoveableSquare ( x, y );
+		if ( moves )
+		{
+			if ( gravedemoshadowMap[y * mtw + x - 2 ] != 0x1001 )
+				DrawMoveableSquares ( x - 2, y , moves - 1 );
+			if ( gravedemoshadowMap[y * mtw + x + 2 ] != 0x1001 )
+				DrawMoveableSquares ( x + 2, y , moves - 1 );
+			if ( gravedemoshadowMap[( y - 2 ) * mtw + x ] != 0x1001 )
+				DrawMoveableSquares ( x, y - 2 , moves - 1 );
+			if ( gravedemoshadowMap[( y + 2 ) * mtw + x ] != 0x1001 )
+				DrawMoveableSquares ( x, y  + 2, moves - 1 );
+		}
+	}
+}
+	
+void DrawMoveableSquare ( int x, int y )
+{
+	moveableMap[y*mtw + x] = showmovesMap[2];
+	moveableMap[y*mtw + x + 1] = showmovesMap[3];
+	moveableMap[(y+1)*mtw+ x] = showmovesMap[6];
+	moveableMap[(y+1)*mtw+ x+1] = showmovesMap[7];
+}
+
+void ClearMoveableBg()
+{
+	int i, max = 32 * 32;
+	for ( i = 0; i < max; ++i )
+		bg2map[i] = showmovesMap[0];
+	for ( i = 0; i < maptiles; ++i )
+		moveableMap[i] =  showmovesMap[0];
+}
+
+UpdateMoveableBg(int x, int y)
+{
+	x /= 8;
+	y /= 8;
+	int i, j;
+	for ( i = 0; i < 32 ; ++i )
+		for ( j = 0; j < 32; j++ )
+		{
+			bg2map[((i+y)%32) * 32 + (j+x)%32 ] = moveableMap[( y+i ) * mtw + x + j];
+		}
+}
+
+void bg_move_sprite ( int i )
+{
+	int x = mysprites[i].x/8;
+	int y = mysprites[i].y/8;
+	
+	if ( Pressed(BUTTON_UP ) && y > 0 && moveableMap[( y - 2 ) * mtw + x ] == showmovesMap[2] )
+	{
+		mysprites[i].y -= 16;
+		do
+		{
+			CheckButtons();
+		}while ( Pressed(BUTTON_UP ));
+	}
+	else if ( Pressed(BUTTON_DOWN ) && y < mth && moveableMap[( y + 2 ) * mtw + x ] == showmovesMap[2] )
+	{
+		mysprites[i].y += 16;
+		do
+		{
+			CheckButtons();
+		}while ( Pressed(BUTTON_DOWN ));
+	}
+	else if ( Pressed(BUTTON_LEFT ) && x > 0 && moveableMap[ y * mtw + x - 2 ] == showmovesMap[2] )
+	{
+		mysprites[i].x -= 16;
+		do
+		{
+			CheckButtons();
+		}while ( Pressed(BUTTON_LEFT ));
+	}
+	else if ( Pressed(BUTTON_RIGHT ) && x < mtw && moveableMap[ y * mtw + x + 2 ] == showmovesMap[2] )
+	{
+		mysprites[i].x += 16;
+		do
+		{
+			CheckButtons();
+		}while ( Pressed(BUTTON_RIGHT ));
+	}
 }
