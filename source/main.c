@@ -17,10 +17,17 @@ int main ( void )
 	int y, x, i;
     x = y = 0;
 	int curr = 0;
-	//init-load ( needs to be seperated still )
-	bg_load(&x,&y); //initializes and loads gravedemomap
+	
+	//init
+	bg_init();
 	sprite_init(); //initializes and loads sprite data
-    int mode = 0;
+    
+	//load()
+	bg_load(&x, &y, gravedemoPal, gravedemoMap, gravedemoTiles , gravedemoshadowMap, 512, 512);
+	//bg_load(&x,&y); //initializes and loads gravedemomap
+	//sprite_load();
+	
+	int mode = 0;
     //game loop
     while ( 1 )
     {   
@@ -28,24 +35,24 @@ int main ( void )
         CheckButtons();
 		if (Pressed(BUTTON_A) && mode == 0)
 		{
-			DrawMoveableArea(0, &x, &y);
+			bg_drawMoveableArea(0, &x, &y, 8);
 			mode = 1;
 		}
 		else if (Pressed(BUTTON_B) && mode == 1 )
 		{
-			ClearMoveableBg();
+			bg_clearMoveable();
 			mode = 0;
 		}
 		
 		if ( mode == 1 )
 		{
-			bg_move_sprite(curr);
+			sprite_move(curr);
 		}
 		//scroll the background
 		bg_scroll( &x, &y );
 		
 		//update all sprites
-		sprite_update_all(&x, &y);
+		sprite_updateAll(&x, &y);
         WaitVBlank();
         for(n = 0; n < 1000; n++);
     }

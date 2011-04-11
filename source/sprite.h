@@ -2,9 +2,12 @@
 
 void sprite_init();
 
-void sprite_set_pos( int, int , int  );
+void sprite_setPos( int, int , int  );
 void sprite_draw( int , int , int  );
-void sprite_update_all(int *, int *);
+void sprite_updateAll(int *, int *);
+
+//needs to be moved to sprite.h
+void sprite_move ( int i );
 
 void sprite_init()
 {
@@ -33,8 +36,8 @@ void sprite_init()
     UpdateSpriteMemory();
     
 	//TODO : remove this crap
-    sprite_set_pos ( 0, 0, 0 );
-	sprite_set_pos ( 1, 10, 10 );
+    sprite_setPos ( 0, 0, 0 );
+	sprite_setPos ( 1, 10, 10 );
 
 	
     sprites[0].attribute2 = 0;
@@ -42,7 +45,7 @@ void sprite_init()
     UpdateSpriteMemory();
 }
 
-void sprite_set_pos( int index, int x, int y )
+void sprite_setPos( int index, int x, int y )
 {
 	mysprites[index].x = x * 8;
 	mysprites[index].y = y * 8;
@@ -55,7 +58,7 @@ void sprite_draw( int index, int x, int y )
 }
 
 
-void sprite_update_all(int *x, int *y)
+void sprite_updateAll(int *x, int *y)
 {
 	int i;
 	for ( i = 0; i < 128; i++ )
@@ -69,4 +72,41 @@ void sprite_update_all(int *x, int *y)
 	UpdateSpriteMemory();
 }
 
-
+void sprite_move ( int i )
+{
+	int x = mysprites[i].x/8;
+	int y = mysprites[i].y/8;
+	
+	if ( Pressed(BUTTON_UP ) && y > 0 && myBg.Select[( y - 2 ) * myBg.mtw + x ] == showmovesMap[2] )
+	{
+		mysprites[i].y -= 16;
+		do
+		{
+			CheckButtons();
+		}while ( Pressed(BUTTON_UP ));
+	}
+	else if ( Pressed(BUTTON_DOWN ) && y < myBg.mth && myBg.Select[( y + 2 ) * myBg.mtw + x ] == showmovesMap[2] )
+	{
+		mysprites[i].y += 16;
+		do
+		{
+			CheckButtons();
+		}while ( Pressed(BUTTON_DOWN ));
+	}
+	else if ( Pressed(BUTTON_LEFT ) && x > 0 && myBg.Select[ y * myBg.mtw + x - 2 ] == showmovesMap[2] )
+	{
+		mysprites[i].x -= 16;
+		do
+		{
+			CheckButtons();
+		}while ( Pressed(BUTTON_LEFT ));
+	}
+	else if ( Pressed(BUTTON_RIGHT ) && x < myBg.mtw && myBg.Select[ y * myBg.mtw + x + 2 ] == showmovesMap[2] )
+	{
+		mysprites[i].x += 16;
+		do
+		{
+			CheckButtons();
+		}while ( Pressed(BUTTON_RIGHT ));
+	}
+}
