@@ -33,6 +33,12 @@ int main ( void )
     {   
         //button polling
         CheckButtons();
+		
+		if (Pressed(BUTTON_L))
+		{
+			bg_load(&x, &y, gravedemoPal, gravedemoMap, gravedemoTiles , gravedemoshadowMap, 512, 512);
+		}
+			
 		if (Pressed(BUTTON_A) && mode == 0)
 		{
 			bg_drawMoveableArea(0, &x, &y, 8);

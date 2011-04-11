@@ -10,6 +10,9 @@ void sprite_updateAll(int *, int *);
 void sprite_move ( int i );
 
 void sprite_init()
+//I:
+//O:
+//R:
 {
 	int n, i;
 	//copy in sprite palette
@@ -46,12 +49,18 @@ void sprite_init()
 }
 
 void sprite_setPos( int index, int x, int y )
+//I:
+//O:
+//R:
 {
 	mysprites[index].x = x * 8;
 	mysprites[index].y = y * 8;
 }
 
 void sprite_draw( int index, int x, int y )
+//I:
+//O:
+//R:
 {
 	sprites[index].attribute1 = SIZE_16 | x;
 	sprites[index].attribute0 = COLOR_256 | SQUARE | y;
@@ -59,6 +68,9 @@ void sprite_draw( int index, int x, int y )
 
 
 void sprite_updateAll(int *x, int *y)
+//I:
+//O:
+//R:
 {
 	int i;
 	for ( i = 0; i < 128; i++ )
@@ -73,11 +85,14 @@ void sprite_updateAll(int *x, int *y)
 }
 
 void sprite_move ( int i )
+//I:
+//O:
+//R:
 {
 	int x = mysprites[i].x/8;
 	int y = mysprites[i].y/8;
 	
-	if ( Pressed(BUTTON_UP ) && y > 0 && myBg.Select[( y - 2 ) * myBg.mtw + x ] == showmovesMap[2] )
+	if ( Pressed(BUTTON_UP ) && y > 0 && myBg.select[( y - 2 ) * myBg.mtw + x ] == showmovesMap[2] )
 	{
 		mysprites[i].y -= 16;
 		do
@@ -85,7 +100,7 @@ void sprite_move ( int i )
 			CheckButtons();
 		}while ( Pressed(BUTTON_UP ));
 	}
-	else if ( Pressed(BUTTON_DOWN ) && y < myBg.mth && myBg.Select[( y + 2 ) * myBg.mtw + x ] == showmovesMap[2] )
+	else if ( Pressed(BUTTON_DOWN ) && y < myBg.mth && myBg.select[( y + 2 ) * myBg.mtw + x ] == showmovesMap[2] )
 	{
 		mysprites[i].y += 16;
 		do
@@ -93,7 +108,7 @@ void sprite_move ( int i )
 			CheckButtons();
 		}while ( Pressed(BUTTON_DOWN ));
 	}
-	else if ( Pressed(BUTTON_LEFT ) && x > 0 && myBg.Select[ y * myBg.mtw + x - 2 ] == showmovesMap[2] )
+	else if ( Pressed(BUTTON_LEFT ) && x > 0 && myBg.select[ y * myBg.mtw + x - 2 ] == showmovesMap[2] )
 	{
 		mysprites[i].x -= 16;
 		do
@@ -101,7 +116,7 @@ void sprite_move ( int i )
 			CheckButtons();
 		}while ( Pressed(BUTTON_LEFT ));
 	}
-	else if ( Pressed(BUTTON_RIGHT ) && x < myBg.mtw && myBg.Select[ y * myBg.mtw + x + 2 ] == showmovesMap[2] )
+	else if ( Pressed(BUTTON_RIGHT ) && x < myBg.mtw && myBg.select[ y * myBg.mtw + x + 2 ] == showmovesMap[2] )
 	{
 		mysprites[i].x += 16;
 		do
