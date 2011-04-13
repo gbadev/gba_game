@@ -1,18 +1,21 @@
-main.o: c:/GBA/team_proj/source/main.c c:/GBA/team_proj/source/dave.h \
- c:/GBA/team_proj/source/font.h \
- c:/GBA/team_proj/source/graphics/gravedemo.h \
- c:/GBA/team_proj/source/graphics/gravedemoshadow.h \
- c:/GBA/team_proj/source/graphics/bluetile.h \
- c:/GBA/team_proj/source/graphics/robot.h
+main.o: c:/dev/source/main.c c:/dev/source/dave.h c:/dev/source/font.h \
+ c:/dev/source/graphics/gravedemo.h \
+ c:/dev/source/graphics/gravedemoshadow.h \
+ c:/dev/source/graphics/showmoves.h c:/dev/source/graphics/robot.h \
+ c:/dev/source/bg.h c:/dev/source/sprite.h
 
-c:/GBA/team_proj/source/dave.h:
+c:/dev/source/dave.h:
 
-c:/GBA/team_proj/source/font.h:
+c:/dev/source/font.h:
 
-c:/GBA/team_proj/source/graphics/gravedemo.h:
+c:/dev/source/graphics/gravedemo.h:
 
-c:/GBA/team_proj/source/graphics/gravedemoshadow.h:
+c:/dev/source/graphics/gravedemoshadow.h:
 
-c:/GBA/team_proj/source/graphics/bluetile.h:
+c:/dev/source/graphics/showmoves.h:
 
-c:/GBA/team_proj/source/graphics/robot.h:
+c:/dev/source/graphics/robot.h:
+
+c:/dev/source/bg.h:
+
+c:/dev/source/sprite.h:

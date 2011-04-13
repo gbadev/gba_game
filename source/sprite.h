@@ -5,6 +5,10 @@ void sprite_init();
 void sprite_setPos( int, int , int  );
 void sprite_draw( int , int , int  );
 void sprite_updateAll(int *, int *);
+void spriteMoveUp(int);
+void spriteMoveDown(int);
+void spriteMoveLeft(int);
+void spriteMoveRight(int);
 
 //needs to be moved to sprite.h
 void sprite_move ( int i );
@@ -29,7 +33,7 @@ void sprite_init()
     }
 	
 	//last spritedata index
-    int max = 16 * 16 * 8 / 2;
+    int max = 16 * 16 * 48 / 2;
     
 	//read in sprite data
     for(n = 0; n < max; n++)
@@ -94,7 +98,7 @@ void sprite_move ( int i )
 	
 	if ( Pressed(BUTTON_UP ) && y > 0 && myBg.select[( y - 2 ) * myBg.mtw + x ] == showmovesMap[2] )
 	{
-		mysprites[i].y -= 16;
+		spriteMoveUp(i);
 		do
 		{
 			CheckButtons();
@@ -102,7 +106,7 @@ void sprite_move ( int i )
 	}
 	else if ( Pressed(BUTTON_DOWN ) && y < myBg.mth && myBg.select[( y + 2 ) * myBg.mtw + x ] == showmovesMap[2] )
 	{
-		mysprites[i].y += 16;
+		spriteMoveDown(i);
 		do
 		{
 			CheckButtons();
@@ -110,7 +114,7 @@ void sprite_move ( int i )
 	}
 	else if ( Pressed(BUTTON_LEFT ) && x > 0 && myBg.select[ y * myBg.mtw + x - 2 ] == showmovesMap[2] )
 	{
-		mysprites[i].x -= 16;
+		spriteMoveLeft(i);
 		do
 		{
 			CheckButtons();
@@ -118,10 +122,110 @@ void sprite_move ( int i )
 	}
 	else if ( Pressed(BUTTON_RIGHT ) && x < myBg.mtw && myBg.select[ y * myBg.mtw + x + 2 ] == showmovesMap[2] )
 	{
-		mysprites[i].x += 16;
+		spriteMoveRight(i);
 		do
 		{
 			CheckButtons();
 		}while ( Pressed(BUTTON_RIGHT ));
 	}
+}
+
+//whoami(sprite) + direction + slide number
+void spriteMoveDown(int i)
+{
+	int n;
+	sprites[i].attribute2 = (i * 128) + (0*8 + 0*8);
+	UpdateSpriteMemory();
+	mysprites[i].y += 4;
+	for(n = 0; n < 16000000; ++n);
+	sprites[i].attribute2 = (i * 128) + (0*8 + 1*8);
+	UpdateSpriteMemory();
+	mysprites[i].y += 4;
+	for(n = 0; n < 16000000; ++n);
+	sprites[i].attribute2 = (i * 128) + (0*8 + 2*8);
+	UpdateSpriteMemory();
+	mysprites[i].y += 4;
+	for(n = 0; n < 16000000; ++n);
+	sprites[i].attribute2 = (i * 128) + (0*8 + 3*8);
+	UpdateSpriteMemory();
+	mysprites[i].y += 4;
+	for(n = 0; n < 16000000; ++n);
+	sprites[i].attribute2 = (i * 128) + (0*8 + 0*8);  
+	UpdateSpriteMemory();
+	mysprites[i].y += 0;
+	for(n = 0; n < 16000000; ++n);	
+}
+
+void spriteMoveUp(int i)
+{
+	int n;
+	sprites[i].attribute2 = (i * 128) + (4*8 + 0*8);
+	UpdateSpriteMemory();
+	mysprites[i].y -= 4;
+	for(n = 0; n < 16000000; ++n);
+	sprites[i].attribute2 = (i * 128) + (4*8) + 1*8;
+	UpdateSpriteMemory();
+	mysprites[i].y -= 4;
+	for(n = 0; n < 16000000; ++n);
+	sprites[i].attribute2 = (i * 128) + (4*8) + 2*8;
+	UpdateSpriteMemory();
+	mysprites[i].y -= 4;
+	for(n = 0; n < 16000000; ++n);
+	sprites[i].attribute2 = (i * 128) + (4*8) + 3*8;
+	UpdateSpriteMemory();
+	mysprites[i].y -= 4;
+	for(n = 0; n < 16000000; ++n);
+	sprites[i].attribute2 = (i * 128) + (4*8) + 0*8;
+	UpdateSpriteMemory();
+	mysprites[i].y -= 0;
+	for(n = 0; n < 16000000; ++n);
+}
+
+void spriteMoveRight(int i)
+{
+	int n;
+	sprites[i].attribute2 = ((i+1) * 128) + (8*8 + 0*8); //pixels Times first slide offset
+	UpdateSpriteMemory();
+	mysprites[i].x += 4;
+	for(n = 0; n < 16000000; ++n);
+	sprites[i].attribute2 = ((i+1) * 128) + (8*8 + 1*8);
+	UpdateSpriteMemory();
+	mysprites[i].x += 4;
+	for(n = 0; n < 16000000; ++n);
+	sprites[i].attribute2 = ((i+1) * 128) + (8*8 + 2*8);
+	UpdateSpriteMemory();
+	mysprites[i].x += 4;
+	for(n = 0; n < 16000000; ++n);
+	sprites[i].attribute2 = ((i+1) * 128) + (8*8 + 3*8);
+	UpdateSpriteMemory();
+	mysprites[i].x += 4;
+	for(n = 0; n < 16000000; ++n);
+	sprites[i].attribute2 = ((i+1) * 128) + (8*8 + 0*8);
+	UpdateSpriteMemory();
+	mysprites[i].x += 0;
+	for(n = 0; n < 16000000; ++n);	
+}
+void spriteMoveLeft(int i)
+{
+	int n;
+	sprites[i].attribute2 = (i * 128) + (12*8 + 0*8); //pixels Times first slide offset
+	UpdateSpriteMemory();
+	mysprites[i].x -= 4;
+	for(n = 0; n < 16000000; ++n);
+	sprites[i].attribute2 = (i * 128) + (12*8 + 1*8);
+	UpdateSpriteMemory();
+	mysprites[i].x -= 4;
+	for(n = 0; n < 16000000; ++n);
+	sprites[i].attribute2 = (i * 128) + (12*8 + 2*8);
+	UpdateSpriteMemory();
+	mysprites[i].x -= 4;
+	for(n = 0; n < 16000000; ++n);
+	sprites[i].attribute2 = (i * 128) + (12*8 + 3*8);
+	UpdateSpriteMemory();
+	mysprites[i].x -= 4;
+	for(n = 0; n < 16000000; ++n);
+	sprites[i].attribute2 = (i * 128) + (12*8 + 0*8);
+	UpdateSpriteMemory();
+	mysprites[i].x -= 0;
+	for(n = 0; n < 16000000; ++n);
 }

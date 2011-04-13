@@ -1,1 +1,1 @@
-bluetile.o: c:/GBA/team_proj/source/graphics/bluetile.c
+bluetile.o: c:/dev/source/graphics/bluetile.c

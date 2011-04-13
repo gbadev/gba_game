@@ -1,1 +1,1 @@
-tanksprites.o: c:/GBA/team_proj/source/graphics/tanksprites.c
+tanksprites.o: c:/dev/source/graphics/tanksprites.c

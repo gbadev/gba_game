@@ -1,1 +1,1 @@
-gravedemoshadow.o: c:/GBA/team_proj/source/graphics/gravedemoshadow.c
+gravedemoshadow.o: c:/dev/source/graphics/gravedemoshadow.c
