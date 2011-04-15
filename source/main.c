@@ -41,7 +41,7 @@ int main ( void )
 			
 		if (Pressed(BUTTON_A) && mode == 0)
 		{
-			bg_drawMoveableArea(0, &x, &y, 8);
+			bg_drawMoveableArea(0, &x, &y, 10);
 			mode = 1;
 		}
 		else if (Pressed(BUTTON_B) && mode == 1 )

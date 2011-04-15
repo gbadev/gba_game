@@ -7,6 +7,7 @@ typedef struct tagBgHandler
 	u16 * map; 	//curr map that is being played
 	u16 * shadow; 	//curr map's shadow/hit map for passable terrain
 	u16 * select; 	//used for movement selection, will also be used for attack/special selection
+	short * movesleft;
 	int width;	//width in pixels
 	int height;	//height in pixels
 	int mtw;	//map tile width
@@ -62,6 +63,20 @@ void bg_init()
 	REG_BG2CNT = BG_COLOR256 | TEXTBG_SIZE_256x256 | (30 << SCREEN_SHIFT) | ( 1 << CHAR_SHIFT);
     //set video mode 0 with background 0
     SetMode(0|BG3_ENABLE|BG2_ENABLE|OBJ_ENABLE|OBJ_MAP_1D);
+	
+	myBg.pal = NULL;
+	myBg.map = NULL;
+	myBg.tiles = NULL;
+	myBg.shadow = NULL;
+	myBg.width = 0;
+	myBg.height = 0;
+	myBg.mtw = 0;
+	myBg.mth = 0;
+	myBg.numtiles = 0;
+	myBg.bgtiles = 0;
+	
+	myBg.select = NULL;
+	myBg.movesleft = NULL;
 }
 
 //should probably create a level struct to pass
@@ -73,6 +88,8 @@ void bg_load(int *x, int *y, const u16 * currPal, const u16 * currMap, const u16
 { 
 	if ( myBg.select )
 		free ( myBg.select );
+	if ( myBg.movesleft )
+		free ( myBg.movesleft );
 	myBg.pal = currPal;
 	myBg.map = currMap;
 	myBg.tiles = currTiles;
@@ -85,6 +102,7 @@ void bg_load(int *x, int *y, const u16 * currPal, const u16 * currMap, const u16
 	myBg.bgtiles = 32 *32;
 	
 	myBg.select = malloc ( sizeof ( u16 ) * myBg.numtiles );
+	myBg.movesleft = malloc ( sizeof ( short ) * (myBg.numtiles/4));
 	
     //copy the palette into the background palette memory
     DMAFastCopy((void*)myBg.pal, (void*)BGPaletteMem, 256, DMA_16NOW);
@@ -339,6 +357,13 @@ void bg_drawMoveableArea ( int i, int * x, int * y, int moves)
 //O:	map for characters moveable area is created, bg showing moveable area is displayed over base map
 //R:	none
 {							 //x tile index    y tile index
+	
+	int j, max = myBg.mtw * myBg.mth;
+	for ( j = 0; j  < max; ++j )
+	{
+		myBg.movesleft[j] = -1;
+	}
+	
 	bg_drawMoveableSquares ( mysprites[i].x/8, mysprites[i].y/8, moves);
 	bg_updateMoveable( *x, *y);
 	
@@ -348,23 +373,25 @@ void bg_drawMoveableSquares ( int x, int y, int moves )
 //I:	a tile's x and y indexes, the number of moves left
 //O:	moveable map is generated ( really shitty algoritm currently )
 //R:	none
-{
+{ 
 	//if the current x,y tile indexes are valid and the tile at x,y is passable
-	if ( x >= 0 && y >= 0 && x < myBg.mtw && y < myBg.mth && myBg.shadow[y * myBg.mtw + x ] != 0x1001)
+	if (isValidMapPosition ( x, y ) && myBg.shadow[y * myBg.mtw + x ] != 0x1001 && moves > myBg.movesleft[y *(myBg.mtw/2)+x])
 	{
 		//that square is passable, thus update movement map to include it
+		myBg.movesleft[y*(myBg.mtw/2) + x] = moves;
 		bg_drawMoveableSquare ( x, y );
+		
 		//if there are more moves to make
 		if ( moves )
 		{
 			//check to see if tile is passable before recursively calling in all directions
-			if ( myBg.shadow[y * myBg.mtw + x - 2 ] != 0x1001 && x-2 >= 0 && y >= 0 && x-2 < myBg.mtw && y < myBg.mth )
+			if ( myBg.shadow[y * myBg.mtw + x - 2 ] != 0x1001 && isValidMapPosition ( x-2, y ) )
 				bg_drawMoveableSquares ( x - 2, y , moves - 1 );
-			if ( myBg.shadow[y * myBg.mtw + x + 2 ] != 0x1001 && x +2>= 0 && y >= 0 && x +2< myBg.mtw && y < myBg.mth)
+			if ( myBg.shadow[y * myBg.mtw + x + 2 ] != 0x1001 && isValidMapPosition ( x+2, y ) )
 				bg_drawMoveableSquares ( x + 2, y , moves - 1 );
-			if ( myBg.shadow[( y - 2 ) * myBg.mtw + x ] != 0x1001 && x >= 0 && y -2 >= 0 && x < myBg.mtw && y-2 < myBg.mth)
+			if ( myBg.shadow[( y - 2 ) * myBg.mtw + x ] != 0x1001 && isValidMapPosition ( x, y-2 ) )
 				bg_drawMoveableSquares ( x, y - 2 , moves - 1 );
-			if ( myBg.shadow[( y + 2 ) * myBg.mtw + x ] != 0x1001 && x >= 0 && y +2>= 0 && x < myBg.mtw && y +2< myBg.mth)
+			if ( myBg.shadow[( y + 2 ) * myBg.mtw + x ] != 0x1001 && isValidMapPosition ( x, y+2 ) )
 				bg_drawMoveableSquares ( x, y  + 2, moves - 1 );
 		}
 	}
@@ -391,9 +418,11 @@ void bg_clearMoveable()
 	//clear moveable bg
 	for ( i = 0; i < max; ++i )
 		bg2map[i] = showmovesMap[0];
+		
 	//clear moveable map
 	for ( i = 0; i < myBg.numtiles; ++i )
 		myBg.select[i] =  showmovesMap[0];
+		//myBg.select[i] = 0;
 }
 
 void bg_updateMoveable(int x, int y)
@@ -401,6 +430,7 @@ void bg_updateMoveable(int x, int y)
 //O:	the map content for moveselection is properly copied into bg2 ( accounting for scrolling registers )
 //R:	none
 {
+	
 	//find tile indexes
 	x /= 8;
 	y /= 8;
