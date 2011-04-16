@@ -5,10 +5,10 @@ void sprite_init();
 void sprite_setPos( int, int , int  );
 void sprite_draw( int , int , int  );
 void sprite_updateAll();
-void spriteMoveUp(int);
-void spriteMoveDown(int);
-void spriteMoveLeft(int);
-void spriteMoveRight(int);
+void sprite_moveUp(int);
+void sprite_moveDown(int);
+void sprite_moveLeft(int);
+void sprite_moveRight(int);
 
 //needs to be moved to sprite.h
 void sprite_move ( int i );
@@ -89,6 +89,7 @@ void sprite_updateAll()
 	int i;
 	for ( i = 0; i < 128; i++ )
 	{
+		//if ( isValidMapPosition( mysprites[i].x - myBg.x, mysprites[i].y - myBg.y ) )
 		if ( mysprites[i].x - myBg.x >= 0 && mysprites[i].y - myBg.y >= 0 &&
 			mysprites[i].x - myBg.x < 240 && mysprites[i].y - myBg.y < 240 )
 			sprite_draw ( i, mysprites[i].x - myBg.x, mysprites[i].y - myBg.y );
@@ -109,7 +110,7 @@ void sprite_move ( int i )
 	
 	if ( Pressed(BUTTON_UP ) && y > 0 && myBg.select[( y - 2 ) * myBg.mtw + x ] == showmovesMap[2] )
 	{
-		spriteMoveUp(i);
+		sprite_moveUp(i);
 		do
 		{
 			CheckButtons();
@@ -117,7 +118,7 @@ void sprite_move ( int i )
 	}
 	else if ( Pressed(BUTTON_DOWN ) && y < myBg.mth && myBg.select[( y + 2 ) * myBg.mtw + x ] == showmovesMap[2] )
 	{
-		spriteMoveDown(i);
+		sprite_moveDown(i);
 		do
 		{
 			CheckButtons();
@@ -125,7 +126,7 @@ void sprite_move ( int i )
 	}
 	else if ( Pressed(BUTTON_LEFT ) && x > 0 && myBg.select[ y * myBg.mtw + x - 2 ] == showmovesMap[2] )
 	{
-		spriteMoveLeft(i);
+		sprite_moveLeft(i);
 		do
 		{
 			CheckButtons();
@@ -133,7 +134,7 @@ void sprite_move ( int i )
 	}
 	else if ( Pressed(BUTTON_RIGHT ) && x < myBg.mtw && myBg.select[ y * myBg.mtw + x + 2 ] == showmovesMap[2] )
 	{
-		spriteMoveRight(i);
+		sprite_moveRight(i);
 		do
 		{
 			CheckButtons();
@@ -142,7 +143,7 @@ void sprite_move ( int i )
 }
 
 //whoami(sprite) + direction + slide number
-void spriteMoveDown(int i)
+void sprite_moveDown(int i)
 {
 	volatile int n;
 	int j;
@@ -155,7 +156,7 @@ void spriteMoveDown(int i)
 	}
 }
 
-void spriteMoveUp(int i)
+void sprite_moveUp(int i)
 {
 	volatile int n;
 	int j;
@@ -168,7 +169,7 @@ void spriteMoveUp(int i)
 	}
 }
 
-void spriteMoveRight(int i)
+void sprite_moveRight(int i)
 {
 	volatile int n;
 	int j;
@@ -180,7 +181,7 @@ void spriteMoveRight(int i)
 		for ( n = 0; n < 10000; n++);
 	}
 }
-void spriteMoveLeft(int i)
+void sprite_moveLeft(int i)
 {
 	volatile int n;
 	int j;
