@@ -41,7 +41,7 @@ int main ( void )
 			
 		if (Pressed(BUTTON_A) && mode == 0)
 		{
-			bg_drawMoveableArea(0, &x, &y, 10);
+			bg_drawMoveableArea(0, 10);
 			mode = 1;
 		}
 		else if (Pressed(BUTTON_B) && mode == 1 )
@@ -55,7 +55,7 @@ int main ( void )
 			sprite_move(curr);
 		}
 		//scroll the background
-		bg_scroll( &x, &y );
+		bg_scroll();
 		
 		//update all sprites
 		sprite_updateAll(&x, &y);

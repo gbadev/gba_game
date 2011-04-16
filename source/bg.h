@@ -2,6 +2,8 @@
 #define u16 unsigned short
 typedef struct tagBgHandler
 {
+	int x;	//srolling x registers
+	int y;	//scrolling y registers
 	u16 * pal;
 	u16 * tiles ;
 	u16 * map; 	//curr map that is being played
@@ -34,17 +36,17 @@ void bg_init();
 void bg_load(int *x, int *y, const u16 * currPal, const u16 * currMap, const u16 * currTiles ,const u16 * currShadow, 
 	int width, int height);
 //scrolling
-void bg_scroll( int *, int *);
+void bg_scroll();
 void bg_scrollLeft();
 void bg_scrollRight();
 void bg_scrollUp();
 void bg_scrollDown();
 //moveableArea
-void bg_drawMoveableArea ( int, int * x, int * y, int moves);
+void bg_drawMoveableArea ( int, int moves);
 void bg_drawMoveableSquares ( int, int, int );
 void bg_drawMoveableSquare ( int, int);
 void bg_clearMoveable();
-void bg_updateMoveable(int x, int y);
+void bg_updateMoveable();
 
 //helpers
 int isValidMapPosition ( int x, int y);
@@ -64,6 +66,8 @@ void bg_init()
     //set video mode 0 with background 0
     SetMode(0|BG3_ENABLE|BG2_ENABLE|OBJ_ENABLE|OBJ_MAP_1D);
 	
+	myBg.x = 0;
+	myBg.y = 0;
 	myBg.pal = NULL;
 	myBg.map = NULL;
 	myBg.tiles = NULL;
@@ -121,17 +125,17 @@ void bg_load(int *x, int *y, const u16 * currPal, const u16 * currMap, const u16
 			k++;
 		}
     
-	*x = 0;
+	myBg.x = 0;
 	REG_BG3HOFS = 0;
 	REG_BG2HOFS = 0 ;
-    *y = 0;
+    myBg.y = 0;
 	REG_BG3VOFS = 0;
 	REG_BG2VOFS = 0 ;	
 	
 	bg_clearMoveable();
 }
 
-void bg_scroll( int * x, int * y )
+void bg_scroll()
 //I:	scrolling registers
 //O:	if direction buttons are pressed, scrolls in appropriate direction.
 //R:	none
@@ -139,17 +143,17 @@ void bg_scroll( int * x, int * y )
 	//process y - axis movement first
     //move up
     if( Pressed ( BUTTON_UP ))
-        if ( *y > 0)
+        if ( myBg.y > 0)
         {
-            (*y)--;
+            (myBg.y)--;
             delta_y--;
         }
 
     //move down
     if( Pressed ( BUTTON_DOWN))
-		if ( (*y + screen_height) <  myBg.height )
+		if ( (myBg.y + screen_height) <  myBg.height )
         {
-            (*y)++;
+            (myBg.y)++;
             delta_y++;
         }
 
@@ -158,23 +162,23 @@ void bg_scroll( int * x, int * y )
     //process x movement
     //move left
     if( Pressed ( BUTTON_LEFT ))
-        if ( *x > 0)
+        if ( myBg.x > 0)
         {
-            (*x)--;
+            (myBg.x)--;
             delta_x--;
         }
 		
     //move right
     if( Pressed ( BUTTON_RIGHT ))
-		if ( ( *x + screen_width ) < myBg.width)
+		if ( ( myBg.x + screen_width ) < myBg.width)
         {
-			(*x)++;
+			(myBg.x)++;
             delta_x++;
         }
         
     //caculate new xi, yi
-	yi = *y / 8; //bg y coordinate
-    xi = *x / 8; //bg x coordinate
+	yi = myBg.y / 8; //bg y coordinate
+    xi = myBg.x / 8; //bg x coordinate
 
 	 //if you have moved 8 pixels down
     if (delta_y == 8  )
@@ -188,10 +192,10 @@ void bg_scroll( int * x, int * y )
     	bg_scrollLeft();
     
     //update scrolling registers
-    REG_BG3VOFS = *y ;
-	REG_BG2VOFS = *y ;
-    REG_BG3HOFS = *x ;
-	REG_BG2HOFS = *x ;
+    REG_BG3VOFS = myBg.y ;
+	REG_BG2VOFS = myBg.y ;
+    REG_BG3HOFS = myBg.x ;
+	REG_BG2HOFS = myBg.x ;
 		
 }
 
@@ -352,20 +356,20 @@ int isValidMapPosition ( int x, int y)
     return result;
 }
 
-void bg_drawMoveableArea ( int i, int * x, int * y, int moves)
+void bg_drawMoveableArea ( int i, int moves)
 //I:	a character's SpriteHandler index, scrolling registers, number of tiles character can move
 //O:	map for characters moveable area is created, bg showing moveable area is displayed over base map
 //R:	none
 {							 //x tile index    y tile index
 	
-	int j, max = myBg.mtw * myBg.mth;
+	int j, max = myBg.numtiles/4;
 	for ( j = 0; j  < max; ++j )
 	{
 		myBg.movesleft[j] = -1;
 	}
 	
 	bg_drawMoveableSquares ( mysprites[i].x/8, mysprites[i].y/8, moves);
-	bg_updateMoveable( *x, *y);
+	bg_updateMoveable();
 	
 	
 }
@@ -375,23 +379,23 @@ void bg_drawMoveableSquares ( int x, int y, int moves )
 //R:	none
 { 
 	//if the current x,y tile indexes are valid and the tile at x,y is passable
-	if (isValidMapPosition ( x, y ) && myBg.shadow[y * myBg.mtw + x ] != 0x1001 && moves > myBg.movesleft[y *(myBg.mtw/2)+x])
+	if (isValidMapPosition ( x, y ) && myBg.shadow[y * myBg.mtw + x ] != 0x1001 && moves > myBg.movesleft[y/2 *(myBg.mtw/2)+x/2])
 	{
 		//that square is passable, thus update movement map to include it
-		myBg.movesleft[y*(myBg.mtw/2) + x] = moves;
+		myBg.movesleft[y/2*(myBg.mtw/2) + x/2] = moves;
 		bg_drawMoveableSquare ( x, y );
 		
 		//if there are more moves to make
 		if ( moves )
 		{
 			//check to see if tile is passable before recursively calling in all directions
-			if ( myBg.shadow[y * myBg.mtw + x - 2 ] != 0x1001 && isValidMapPosition ( x-2, y ) )
+			if ( isValidMapPosition ( x-2, y ) &&myBg.shadow[y * myBg.mtw + x - 2 ] != 0x1001)
 				bg_drawMoveableSquares ( x - 2, y , moves - 1 );
-			if ( myBg.shadow[y * myBg.mtw + x + 2 ] != 0x1001 && isValidMapPosition ( x+2, y ) )
+			if ( isValidMapPosition ( x+2, y ) &&myBg.shadow[y * myBg.mtw + x + 2 ] != 0x1001)
 				bg_drawMoveableSquares ( x + 2, y , moves - 1 );
-			if ( myBg.shadow[( y - 2 ) * myBg.mtw + x ] != 0x1001 && isValidMapPosition ( x, y-2 ) )
+			if ( isValidMapPosition ( x, y-2 ) &&myBg.shadow[( y - 2 ) * myBg.mtw + x ] != 0x1001 )
 				bg_drawMoveableSquares ( x, y - 2 , moves - 1 );
-			if ( myBg.shadow[( y + 2 ) * myBg.mtw + x ] != 0x1001 && isValidMapPosition ( x, y+2 ) )
+			if ( isValidMapPosition ( x, y+2 ) &&myBg.shadow[( y + 2 ) * myBg.mtw + x ] != 0x1001 )
 				bg_drawMoveableSquares ( x, y  + 2, moves - 1 );
 		}
 	}
@@ -423,17 +427,22 @@ void bg_clearMoveable()
 	for ( i = 0; i < myBg.numtiles; ++i )
 		myBg.select[i] =  showmovesMap[0];
 		//myBg.select[i] = 0;
+		
+	//clear movesleft map
+	max = myBg.numtiles/4;
+	for ( i = 0 ; i < max; ++i )
+		myBg.movesleft[i] = -1;
 }
 
-void bg_updateMoveable(int x, int y)
+void bg_updateMoveable()
 //I:	the values of the scrolling registers
 //O:	the map content for moveselection is properly copied into bg2 ( accounting for scrolling registers )
 //R:	none
 {
 	
 	//find tile indexes
-	x /= 8;
-	y /= 8;
+	int x = myBg.x / 8;
+	int y = myBg.y / 8;
 	
 	int i, j;
 	for ( i = 0; i < 32 ; ++i )
