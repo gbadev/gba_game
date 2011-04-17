@@ -16,7 +16,7 @@ void sprite_moveRight(int);
 //needs to be moved to sprite.h
 void sprite_move ( int i );
 
-int PathFinder ( Stack * sptr, int this_x, int this_y, int end_x, int end_y, int moves );
+int PathFinder ( Stack * sptr, int this_x, int this_y, int end_x, int end_y);
 void sprite_findPath(int i, int start_x, int start_y, int end_x, int end_y );
 
 void sprite_init()
@@ -213,15 +213,17 @@ void sprite_moveLeft(int i)
 int pathfound;
 void sprite_findPath(int i, int start_x, int start_y, int end_x, int end_y )
 {
-	int start = myBg.movesleft[start_y/2 * myBg.mtw/2 + start_x/2];
-	int end = myBg.movesleft[end_y/2 * myBg.mtw/2 + end_x/2];
-	int moves = start - end;
+	//convert to movesleft tile indexes
+	start_x/=16;
+	start_y/=16;
+	end_x/=16;
+	end_y/=16;
 	
 	Stack s_moves;
 	stack_init ( &s_moves );
 	
 	pathfound = 0;
-	int dummy = PathFinder ( &s_moves, start_x, start_y, end_x, end_y, moves );
+	int dummy = PathFinder ( &s_moves, start_x, start_y, end_x, end_y );
 	
 	int curr_move;
 	if ( dummy )
@@ -243,7 +245,7 @@ void sprite_findPath(int i, int start_x, int start_y, int end_x, int end_y )
 			}
 			else if ( curr_move == 3 )
 			{
-				sprite_moveUp(i);
+				sprite_moveDown(i);
 			}
 	
 		}
@@ -253,7 +255,7 @@ void sprite_findPath(int i, int start_x, int start_y, int end_x, int end_y )
 
 }
 
-int PathFinder ( Stack* sptr, int this_x, int this_y, int end_x, int end_y, int moves )
+int PathFinder ( Stack* sptr, int this_x, int this_y, int end_x, int end_y )
 {
 	if ( !pathfound )
 	{
@@ -264,37 +266,41 @@ int PathFinder ( Stack* sptr, int this_x, int this_y, int end_x, int end_y, int 
 		}
 		else
 		{
-			if ( moves)
-			{
-				if (isValidMapPosition ( this_x+2, this_y ) &&
-					PathFinder (sptr,this_x+2, this_y, end_x, end_y, --moves) )
+			//if ( moves >= 0)
+			//{
+				if ((this_x + 1) >= 0 && (this_x + 1) < myBg.mtw/2 && this_y >= 0 && this_y < myBg.mth/2 &&
+					myBg.movesleft[this_y*myBg.mtw/2 + this_x ] == ( myBg.movesleft[(this_y)*myBg.mtw/2 + (this_x+1) ] +1)&&
+					PathFinder (sptr,this_x+1, this_y, end_x, end_y) )
 				{
 					//4 - right
 					stack_push( sptr, 4);
 					return 1;
 				}
-				if (isValidMapPosition ( this_x-2, this_y ) && 
-					PathFinder (sptr,this_x-2, this_y, end_x, end_y, --moves) )
+				if ((this_x - 1 ) >= 0 && (this_x - 1 )< myBg.mtw/2 && this_y >= 0 && this_y < myBg.mth/2 &&
+					myBg.movesleft[this_y*myBg.mtw/2 + this_x ] == (myBg.movesleft[(this_y)*myBg.mtw/2 + (this_x-1) ] +1) &&
+					PathFinder (sptr,this_x-1, this_y, end_x, end_y) )
 				{
 					//1 - left
 					stack_push( sptr, 1 );
 					return 1;
 				}
-				if (isValidMapPosition ( this_x, this_y+2 ) && 
-					PathFinder (sptr,this_x, this_y+2, end_x, end_y, --moves) )
+				if (this_x >= 0 && this_x < myBg.mtw/2 && (this_y -1) >= 0 && (this_y -1)  < myBg.mth/2 &&
+					myBg.movesleft[this_y*myBg.mtw/2 + this_x ] == (myBg.movesleft[(this_y-1)*myBg.mtw/2 + (this_x) ]+1) &&
+					PathFinder (sptr,this_x, this_y-1, end_x, end_y) )
 				{
 					//2 - up
 					stack_push( sptr, 2 );
 					return 1;
 				}
-				if (isValidMapPosition ( this_x, this_y-2 ) && 
-					PathFinder (sptr,this_x, this_y-2, end_x, end_y, --moves) )
+				if (this_x >= 0 && this_x < myBg.mtw/2 && (this_y + 1) >= 0 && (this_y +1) < myBg.mth/2 &&
+					myBg.movesleft[this_y*myBg.mtw/2 + this_x ] == (myBg.movesleft[(this_y+1)*myBg.mtw/2 + (this_x) ]+1)&&
+					PathFinder (sptr,this_x, this_y+1, end_x, end_y) )
 				{
 					//3 - down
 					stack_push( sptr, 3 );
 					return 1;
 				}
-			}
+			//}
 		}
 	}
 	return 0;
