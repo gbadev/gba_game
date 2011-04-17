@@ -1,3 +1,5 @@
+
+
 #include "dave.h"//must be loaded first!
 //graphics
 #include "graphics/gravedemo.h"
@@ -7,6 +9,8 @@
 //source - needs to have graphics loaded before source
 #include "bg.h"
 #include "sprite.h"
+
+
 
 int main ( void )
 {
@@ -41,11 +45,19 @@ int main ( void )
 			
 		if (Pressed(BUTTON_A) && mode == 0)
 		{
+			sprite_setPos ( 127, mysprites[0].x, mysprites[0].y );
 			bg_drawMoveableArea(0, 10);
 			mode = 1;
 		}
 		else if (Pressed(BUTTON_B) && mode == 1 )
 		{
+			int start_x, start_y, end_x, end_y;
+			start_x = mysprites[0].x;
+			start_y = mysprites[0].y;
+			end_x = mysprites[127].x;
+			end_y = mysprites[127].y;
+			
+			sprite_findPath ( 0, start_x, start_y, end_x, end_y );
 			bg_clearMoveable();
 			mode = 0;
 		}
@@ -58,7 +70,7 @@ int main ( void )
 		bg_scroll();
 		
 		//update all sprites
-		sprite_updateAll(&x, &y);
+		sprite_updateAll();
         WaitVBlank();
         for(n = 0; n < 1000; n++);
     }
