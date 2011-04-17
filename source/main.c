@@ -1,5 +1,6 @@
 #include "dave.h"//must be loaded first!
 //graphics
+#include "scott.h"
 #include "graphics/gravedemo.h"
 #include "graphics/gravedemoshadow.h"
 #include "graphics/showmoves.h"
