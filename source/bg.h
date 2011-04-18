@@ -346,7 +346,7 @@ void bg_scrollDown()
 }
 
 int isValidMapPosition ( int x, int y)
-//I:    a position, given by x and y coords
+//I:    a position, given  by x and y coords
 //O:    none
 //R:    true if index is valid map index, false
 {

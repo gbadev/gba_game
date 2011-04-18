@@ -225,8 +225,8 @@ void sprite_findPath(int i, int start_x, int start_y, int end_x, int end_y )
 	pathfound = 0;
 	int dummy = PathFinder ( &s_moves, start_x, start_y, end_x, end_y );
 	
-	int curr_move;
-	if ( dummy )
+	int curr_move; 
+	if ( dummy  )
 	{
 		while ( !stack_empty ( & s_moves ) )
 		{

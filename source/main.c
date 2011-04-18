@@ -56,7 +56,7 @@ int main ( void )
 			start_x = mysprites[0].x;
 			start_y = mysprites[0].y;
 			end_x = mysprites[127].x;
-			end_y = mysprites[127].y;
+			end_y = mysprites[127].y ;
 			
 			sprite_findPath ( 0, start_x, start_y, end_x, end_y );
 			bg_clearMoveable();
