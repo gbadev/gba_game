@@ -16,7 +16,7 @@ void sprite_moveRight(int);
 //needs to be moved to sprite.h
 void sprite_move ( int i );
 
-int PathFinder ( Stack * sptr, int this_x, int this_y, int end_x, int end_y);
+int PathFinder ( Stack * sptr, int this_x, int this_y, int end_x, int end_y,int * pathfound);
 void sprite_findPath(int i, int start_x, int start_y, int end_x, int end_y );
 
 void sprite_init()
@@ -32,10 +32,10 @@ void sprite_init()
     //move sprites offscreen
     for(n = 0; n < 128; n++)
     {
-		mysprites[n].x = -16;
-		mysprites[n].y = -16;
-        sprites[n].attribute0 = -16; //using copy of OAM
-        sprites[n].attribute1 = -16;
+		mysprites[n].x = -160;
+		mysprites[n].y = -160;
+        sprites[n].attribute0 = -160; //using copy of OAM
+        sprites[n].attribute1 = -160;
     }
 	
 	//last spritedata index
@@ -50,11 +50,13 @@ void sprite_init()
     
 	//TODO : remove this crap
     sprite_setTilePos ( 0, 0, 0 );
-	sprite_setTilePos ( 1, 9, 9 );
+	sprite_setTilePos ( 1, 2, 0 );
+	sprite_setTilePos ( 2, 0, 2 );
 
 	
     sprites[0].attribute2 = 0;
 	sprites[1].attribute2 = 8;
+	sprites[2].attribute2 = 16;
 	sprites[127].attribute2 = 0;
     UpdateSpriteMemory();
 }
@@ -210,7 +212,7 @@ void sprite_moveLeft(int i)
 
 
 
-int pathfound;
+
 void sprite_findPath(int i, int start_x, int start_y, int end_x, int end_y )
 {
 	//convert to movesleft tile indexes
@@ -222,8 +224,8 @@ void sprite_findPath(int i, int start_x, int start_y, int end_x, int end_y )
 	Stack s_moves;
 	stack_init ( &s_moves );
 	
-	pathfound = 0;
-	int dummy = PathFinder ( &s_moves, start_x, start_y, end_x, end_y );
+	int pathfound = 0;
+	int dummy = PathFinder ( &s_moves, start_x, start_y, end_x, end_y, &pathfound );
 	
 	int curr_move; 
 	if ( dummy  )
@@ -255,13 +257,13 @@ void sprite_findPath(int i, int start_x, int start_y, int end_x, int end_y )
 
 }
 
-int PathFinder ( Stack* sptr, int this_x, int this_y, int end_x, int end_y )
+int PathFinder ( Stack* sptr, int this_x, int this_y, int end_x, int end_y, int * pathfound )
 {
-	if ( !pathfound )
+	if ( !(*pathfound) )
 	{
 		if ( this_x == end_x && this_y == end_y )
 		{	
-			pathfound = 1;
+			*pathfound = 1;
 			return 1;
 		}
 		else
@@ -270,7 +272,7 @@ int PathFinder ( Stack* sptr, int this_x, int this_y, int end_x, int end_y )
 			//{
 				if ((this_x + 1) >= 0 && (this_x + 1) < myBg.mtw/2 && this_y >= 0 && this_y < myBg.mth/2 &&
 					myBg.movesleft[this_y*myBg.mtw/2 + this_x ] == ( myBg.movesleft[(this_y)*myBg.mtw/2 + (this_x+1) ] +1)&&
-					PathFinder (sptr,this_x+1, this_y, end_x, end_y) )
+					PathFinder (sptr,this_x+1, this_y, end_x, end_y,pathfound) )
 				{
 					//4 - right
 					stack_push( sptr, 4);
@@ -278,7 +280,7 @@ int PathFinder ( Stack* sptr, int this_x, int this_y, int end_x, int end_y )
 				}
 				if ((this_x - 1 ) >= 0 && (this_x - 1 )< myBg.mtw/2 && this_y >= 0 && this_y < myBg.mth/2 &&
 					myBg.movesleft[this_y*myBg.mtw/2 + this_x ] == (myBg.movesleft[(this_y)*myBg.mtw/2 + (this_x-1) ] +1) &&
-					PathFinder (sptr,this_x-1, this_y, end_x, end_y) )
+					PathFinder (sptr,this_x-1, this_y, end_x, end_y,pathfound) )
 				{
 					//1 - left
 					stack_push( sptr, 1 );
@@ -286,7 +288,7 @@ int PathFinder ( Stack* sptr, int this_x, int this_y, int end_x, int end_y )
 				}
 				if (this_x >= 0 && this_x < myBg.mtw/2 && (this_y -1) >= 0 && (this_y -1)  < myBg.mth/2 &&
 					myBg.movesleft[this_y*myBg.mtw/2 + this_x ] == (myBg.movesleft[(this_y-1)*myBg.mtw/2 + (this_x) ]+1) &&
-					PathFinder (sptr,this_x, this_y-1, end_x, end_y) )
+					PathFinder (sptr,this_x, this_y-1, end_x, end_y,pathfound) )
 				{
 					//2 - up
 					stack_push( sptr, 2 );
@@ -294,7 +296,7 @@ int PathFinder ( Stack* sptr, int this_x, int this_y, int end_x, int end_y )
 				}
 				if (this_x >= 0 && this_x < myBg.mtw/2 && (this_y + 1) >= 0 && (this_y +1) < myBg.mth/2 &&
 					myBg.movesleft[this_y*myBg.mtw/2 + this_x ] == (myBg.movesleft[(this_y+1)*myBg.mtw/2 + (this_x) ]+1)&&
-					PathFinder (sptr,this_x, this_y+1, end_x, end_y) )
+					PathFinder (sptr,this_x, this_y+1, end_x, end_y,pathfound) )
 				{
 					//3 - down
 					stack_push( sptr, 3 );

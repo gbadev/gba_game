@@ -23,7 +23,7 @@ BgHandler myBg;
 //globals
 const int screen_width = 240;
 const int screen_height = 160;
-int xi, yi;
+
 int delta_x = 0, delta_y = 0;
 
 //create a pointer to background 3 and 2 tilemap buffers
@@ -47,6 +47,7 @@ void bg_drawMoveableSquares ( int, int, int );
 void bg_drawMoveableSquare ( int, int);
 void bg_clearMoveable();
 void bg_updateMoveable();
+int bg_tileOccupied ( int x, int y );
 
 //helpers
 int isValidMapPosition ( int x, int y);
@@ -143,7 +144,7 @@ void bg_scroll()
 	//process y - axis movement first
     //move up
     if( Pressed ( BUTTON_UP ))
-        if ( myBg.y > 0)
+        if ( myBg.y > -16)
         {
             (myBg.y)--;
             delta_y--;
@@ -162,7 +163,7 @@ void bg_scroll()
     //process x movement
     //move left
     if( Pressed ( BUTTON_LEFT ))
-        if ( myBg.x > 0)
+        if ( myBg.x > -32)
         {
             (myBg.x)--;
             delta_x--;
@@ -175,28 +176,24 @@ void bg_scroll()
 			(myBg.x)++;
             delta_x++;
         }
-        
-    //caculate new xi, yi
-	yi = myBg.y / 8; //bg y coordinate
-    xi = myBg.x / 8; //bg x coordinate
-
-	 //if you have moved 8 pixels down
-    if (delta_y == 8  )
-		bg_scrollDown();		
-    else if (delta_y == -8 )
-		bg_scrollUp();
-	
-    if (delta_x == 8 )
-		bg_scrollRight();
-    else if (delta_x == -8 )
-    	bg_scrollLeft();
     
     //update scrolling registers
     REG_BG3VOFS = myBg.y ;
 	REG_BG2VOFS = myBg.y ;
     REG_BG3HOFS = myBg.x ;
 	REG_BG2HOFS = myBg.x ;
-		
+	
+
+	
+    if (delta_x == 8 )
+		bg_scrollRight();
+    else if (delta_x == -8 )
+    	bg_scrollLeft();
+		//if you have moved 8 pixels down
+    if (delta_y == 8  )
+		bg_scrollDown();		
+    else if (delta_y == -8 )
+		bg_scrollUp();
 }
 
 void bg_scrollLeft()
@@ -205,9 +202,11 @@ void bg_scrollLeft()
 //R:	none
 {
 	int bgstart, bgoffset, mstart, moffset, bgindex, mindex, i;
+	int xi = myBg.x/8;
+	int	yi = myBg.y/8;
 	//moving left
     //find start indexes
-    bgstart = ( ((yi+31)%32 ) * 32 ) + ( ( xi + 31 ) %32 );
+    bgstart = (( ((yi+31)%32 ) * 32 ) + ( ( xi + 31 ) %32 ))%myBg.numtiles;
     mstart = (( yi-1) * myBg.mtw ) + ( xi - 1 );
     
 	for ( i = 0; i < 32; i++ )
@@ -217,11 +216,13 @@ void bg_scrollLeft()
         moffset = i * myBg.mtw;
                 
         //calcuate indexes
-        bgindex = ( bgstart + bgoffset ) % myBg.bgtiles;
+        bgindex = ( bgstart + bgoffset );
+		if (bgindex >= myBg.bgtiles)
+			bgindex -= myBg.bgtiles;
         mindex = mstart + moffset;
                 
         //if index is valid
-        if ( isValidMapPosition (  xi-1, yi - 1 + i ) == 1)
+        if ( isValidMapPosition (  xi-1, yi - 1 + i ) == 1 && bgindex >= 0 && mindex>=0)
         {
 			//write
 			WaitVBlank();
@@ -239,9 +240,11 @@ void bg_scrollRight()
 //R:	none
 {
 	int bgstart, bgoffset, mstart, moffset, bgindex, mindex, i;
+	int xi = myBg.x/8;
+	int	yi = myBg.y/8;
 	//moving right
     //find start indexes
-    bgstart = ( ((yi + 31)%32) * 32 ) + ( (xi + 30) % 32 );
+    bgstart = (( ((yi + 31)%32) * 32 ) + ( (xi + 30) % 32 ))%myBg.numtiles;
     mstart = ( (yi - 1) * myBg.mtw )+ ( xi + 30 );
 
     for ( i = 0; i < 32; i++ )
@@ -250,11 +253,13 @@ void bg_scrollRight()
         bgoffset = i * 32;
         moffset =  i * myBg.mtw;
 		//calculate indexes
-        bgindex = ( bgstart + bgoffset ) % myBg.bgtiles;
+        bgindex = ( bgstart + bgoffset );
+		if (bgindex >= myBg.bgtiles)
+			bgindex -= myBg.bgtiles;
         mindex = mstart + moffset;
                 
         //if index is valid
-        if ( isValidMapPosition (  xi+30, yi - 1 + i ) == 1 )
+        if ( isValidMapPosition (  xi+30, yi - 1 + i ) == 1 && bgindex >= 0 && mindex>=0)
         {
 			//write
 			WaitVBlank();
@@ -272,9 +277,11 @@ void bg_scrollUp()
 //R:	none
 {
 	int bgstart, bgoffset, mstart, moffset, bgindex, mindex,i;
+	int xi = myBg.x/8;
+	int	yi = myBg.y/8;
 	//moving up
     //find start indexes
-    bgstart = ( ( (yi + 31 ) % 32) * 32 + ((xi +31)% 32) );
+    bgstart = (( ( (yi + 31 ) % 32) * 32 + ((xi +31)% 32) ))%myBg.numtiles;
     mstart = ( yi - 1 ) * myBg.mtw + xi - 1;
  
     for ( i = 0; i < 32; i++ )
@@ -287,7 +294,7 @@ void bg_scrollUp()
         mindex = mstart + moffset;
 
         //if index is valid
-        if ( isValidMapPosition (  (xi - 1) + moffset, yi - 1 ) )
+        if ( isValidMapPosition (  (xi - 1) + moffset, yi - 1 ) && bgindex >= 0 && mindex>=0)
         {
 			//find end of current row
             int nextrow = bgstart - ( bgstart % 32 ) + 32;
@@ -312,9 +319,11 @@ void bg_scrollDown()
 //R:	none
 {
 	int bgstart, bgoffset, mstart, moffset, bgindex, mindex,i;
+	int xi = myBg.x/8;
+	int	yi = myBg.y/8;
 	//moving down
     //bg start
-    bgstart = ( ( ( yi + 30 )% 32 ) * 32 + ((xi +31 ) % 32) );
+    bgstart = (( ( ( yi + 30 )% 32 ) * 32 + ((xi +31 ) % 32) ))%myBg.numtiles;
     //map start
     mstart = ( yi + 30 ) * myBg.mtw + xi - 1;
     for ( i = 0; i < 32; i++ )
@@ -327,7 +336,7 @@ void bg_scrollDown()
         mindex = mstart + moffset;
 
         //check if index is valid
-        if ( isValidMapPosition ( xi - 1 + moffset, yi+30))
+        if ( isValidMapPosition ( xi - 1 + moffset, yi+30) && bgindex >= 0 && mindex>=0)
         {
             //find end of current row
             int nextrow = bgstart - ( bgstart % 32 ) + 32;
@@ -389,13 +398,17 @@ void bg_drawMoveableSquares ( int x, int y, int moves )
 		if ( moves )
 		{
 			//check to see if tile is passable before recursively calling in all directions
-			if ( isValidMapPosition ( x-2, y ) &&myBg.shadow[y * myBg.mtw + x - 2 ] != 0x1001)
+			if ( isValidMapPosition ( x-2, y ) &&myBg.shadow[y * myBg.mtw + x - 2 ] != 0x1001
+				&& !bg_tileOccupied ( (x-2)*8, y*8 ))
 				bg_drawMoveableSquares ( x - 2, y , moves - 1 );
-			if ( isValidMapPosition ( x+2, y ) &&myBg.shadow[y * myBg.mtw + x + 2 ] != 0x1001)
+			if ( isValidMapPosition ( x+2, y ) &&myBg.shadow[y * myBg.mtw + x + 2 ] != 0x1001 
+				&& !bg_tileOccupied ( (x+2)*8, y*8 ))
 				bg_drawMoveableSquares ( x + 2, y , moves - 1 );
-			if ( isValidMapPosition ( x, y-2 ) &&myBg.shadow[( y - 2 ) * myBg.mtw + x ] != 0x1001 )
+			if ( isValidMapPosition ( x, y-2 ) &&myBg.shadow[( y - 2 ) * myBg.mtw + x ] != 0x1001 
+				&& !bg_tileOccupied ( x*8, (y-2)*8 ))
 				bg_drawMoveableSquares ( x, y - 2 , moves - 1 );
-			if ( isValidMapPosition ( x, y+2 ) &&myBg.shadow[( y + 2 ) * myBg.mtw + x ] != 0x1001 )
+			if ( isValidMapPosition ( x, y+2 ) &&myBg.shadow[( y + 2 ) * myBg.mtw + x ] != 0x1001 
+				&& !bg_tileOccupied ( x*8, (y+2)*8 ))
 				bg_drawMoveableSquares ( x, y  + 2, moves - 1 );
 		}
 	}
@@ -449,7 +462,19 @@ void bg_updateMoveable()
 		for ( j = 0; j < 32; j++ )
 		{
 			//modulus is magic!
-			bg2map[((i+y)%32) * 32 + (j+x)%32 ] = myBg.select[( y+i ) * myBg.mtw + x + j];
+			bg2map[((i+y-1)%32) * 32 + (j+x-1)%32 ] = myBg.select[( y-1+i ) * myBg.mtw + x-1 + j];
 		}
 }
 
+int bg_tileOccupied ( int x, int y )
+{
+	int i;
+	int result = 0;
+	for ( i = 0; i < 127 && !result; i++ )
+	{
+		if ( x == mysprites[i].x && y == mysprites[i].y )
+			result = 1;
+	}
+	return result;
+}
+	
