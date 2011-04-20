@@ -1,0 +1,1 @@
+grit ALL.BMP FILES.BMP -ftc -gu16 -Mh 2 -Mw 2 -pS -O master_pal
