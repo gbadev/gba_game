@@ -1,16 +1,26 @@
 //sprite.h
 //poop
 #include "stack.h"
-#include "master_pal"
-#include "animations.h"
-#include "dave_tank_sprites.h"
-#include "dave_zombie_sprites.h"
-#include "scott_char.h"
-#include "scott_zomb.h"
-#include "sean_grenadier.h"
-#include "thomas_all_chars.h"
+#include "graphics/sprites/master_pal.h"
+#include "graphics/sprites/animations.h"
+#include "graphics/sprites/dave_tank_sprites.h"
+#include "graphics/sprites/dave_zombie_sprites.h"
+#include "graphics/sprites/scott_char.h"
+#include "graphics/sprites/scott_zomb.h"
+#include "graphics/sprites/sean_grenadier.h"
+#include "graphics/sprites/thomas_all_chars.h"
+
+#include "graphics/sprites/master_pal.c"
+#include "graphics/sprites/animations.c"
+#include "graphics/sprites/dave_tank_sprites.c"
+#include "graphics/sprites/dave_zombie_sprites.c"
+#include "graphics/sprites/scott_char.c"
+#include "graphics/sprites/scott_zomb.c"
+#include "graphics/sprites/sean_grenadier.c"
+#include "graphics/sprites/thomas_all_chars.c"
 
 void sprite_init();
+
 
 void sprite_setPos( int, int , int  );
 void sprite_setTilePos( int index, int x, int y );
@@ -27,6 +37,57 @@ void sprite_move ( int i );
 int PathFinder ( Stack * sptr, int this_x, int this_y, int end_x, int end_y,int * pathfound);
 void sprite_findPath(int i, int start_x, int start_y, int end_x, int end_y );
 
+
+
+/*
+	0 dave_tank_sprites - 2560
+	1 dave_zombie_sprites - 2176
+	2 scott_char - 2176
+	3 scott_zomb - 4352
+	4 sean_grenadier - 2048
+	5 thomas_all_chars - 2304
+	6 animations - 3072
+	****Append Tiles to the above to get array name
+	****Append TilesLen to get length of tiles
+*/
+
+
+/*
+	Below was an attempt at an object for data of sprite.
+	It kept giving me a stupid error when I compiled so I guess
+	I will fall back to the array or array.  Same diff I guess.
+	Dave, If you like it and want to spend a few minutes trying it
+	go ahead, else you can delete it.  Thanks, Thomas Cross.
+*/
+/********************************************************************
+struct spriteDataObj {
+	const unsigned short data;	//sprite
+	int length;					//elements in data array
+}the_sprites[7];
+the_sprites[0].data++;
+//the_sprites[0] = dave_tank_spritesTiles;
+//the_sprites[0].length = 16128;
+*********************************************************************/
+
+const unsigned int the_sprites_lengths[7] = {
+	2560,
+	2176,
+	2176,
+	4352,
+	2048,
+	2304,
+	3072
+};
+const unsigned short *the_sprites[7] = {
+	dave_tank_spritesTiles,
+	dave_zombie_spritesTiles,
+	scott_charTiles,
+	scott_zombTiles,
+	sean_grenadierTiles,
+	thomas_all_charsTiles,
+	animationsTiles
+};
+
 void sprite_init()
 //I:	none
 //O:	sprite stuff is initialized
@@ -34,8 +95,8 @@ void sprite_init()
 {
 	int n, i;
 	//copy in sprite palette
-    for(n = 0; n < 256; n++)
-        SpritePal[n] = robotPalette[n];
+    for(n = 0; n < 42; n++)  //Changed from 256 to 42 due to grit processing.
+        SpritePal[n] = master_palPal[n];
 
     //move sprites offscreen
     for(n = 0; n < 128; n++)
@@ -46,12 +107,30 @@ void sprite_init()
         sprites[n].attribute1 = -160;
     }
 	
+	/*OLD WAY
 	//last spritedata index
     int max = 16 * 16 * 48 / 2;
-    
+	max = the_sprites_lengths[0];
+	for(n = 0; n < max; ++n)
+		SpriteData[n] = the_sprites[0][n];
+    */
+	
+
+	//This loop does not include sprite data.  
+	//Because it seems to be corrupting the sprite.
 	//read in sprite data
-    for(n = 0; n < max; n++)
-        SpriteData[n] = robotData[n];
+	int totalSpriteData = 0;
+	for(i = 0; i < 6; ++i) //7 == number of sprite files
+	{
+		for(n = 0; n < the_sprites_lengths[i]; ++n)
+		{
+			SpriteData[totalSpriteData] = the_sprites[i][n];
+			++totalSpriteData;
+		}
+		
+	}
+
+	
 
     
     UpdateSpriteMemory();
