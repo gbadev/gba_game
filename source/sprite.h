@@ -73,10 +73,10 @@ const unsigned int the_sprites_lengths[7] = {
 	2560,
 	2176,
 	2176,
-	4352,
+	2176,
 	2048,
 	2304,
-	3072
+	1536
 };
 const unsigned short *the_sprites[7] = {
 	dave_tank_spritesTiles,
@@ -98,14 +98,7 @@ void sprite_init()
     for(n = 0; n < 42; n++)  //Changed from 256 to 42 due to grit processing.
         SpritePal[n] = master_palPal[n];
 
-    //move sprites offscreen
-    for(n = 0; n < 128; n++)
-    {
-		mysprites[n].x = -160;
-		mysprites[n].y = -160;
-        sprites[n].attribute0 = -160; //using copy of OAM
-        sprites[n].attribute1 = -160;
-    }
+   
 	
 	/*OLD WAY
 	//last spritedata index
@@ -120,7 +113,7 @@ void sprite_init()
 	//Because it seems to be corrupting the sprite.
 	//read in sprite data
 	int totalSpriteData = 0;
-	for(i = 0; i < 6; ++i) //7 == number of sprite files
+	for(i = 0; i < 7; ++i) //7 == number of sprite files
 	{
 		for(n = 0; n < the_sprites_lengths[i]; ++n)
 		{
@@ -135,11 +128,22 @@ void sprite_init()
     
     UpdateSpriteMemory();
     
+
+ 
+	//move sprites offscreen
+    for(n = 0; n < 128; n++)
+    {
+		mysprites[n].x = -160;
+		mysprites[n].y = -160;
+        sprites[n].attribute0 = -160; //using copy of OAM
+        sprites[n].attribute1 = -160;
+		sprites[n].attribute2 = n*8;
+    }
+	
 	//TODO : remove this crap
     sprite_setTilePos ( 0, 0, 0 );
 	sprite_setTilePos ( 1, 2, 0 );
 	sprite_setTilePos ( 2, 0, 2 );
-
 	
     sprites[0].attribute2 = 0;
 	sprites[1].attribute2 = 8;
