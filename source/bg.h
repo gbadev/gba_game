@@ -27,14 +27,17 @@ const int screen_height = 160;
 int delta_x = 0, delta_y = 0;
 
 //create a pointer to background 3 and 2 tilemap buffers
-unsigned short* bg3map =(unsigned short*) ScreenBaseBlock (31);
-unsigned short* bg2map =(unsigned short*) ScreenBaseBlock (30);
+//unsigned short* bg3map =(unsigned short*) ScreenBaseBlock (31);
+//unsigned short* bg2map =(unsigned short*) ScreenBaseBlock (30);
+unsigned short* bg3map =(unsigned short*) ScreenBaseBlock (28);
+unsigned short* bg2map =(unsigned short*) ScreenBaseBlock (24);
 
 //bg functions
 //init and load
 void bg_init();
 void bg_load(int *x, int *y, const u16 * currPal, const u16 * currMap, const u16 * currTiles ,const u16 * currShadow, 
 	int width, int height);
+void bg_loadTile(int , int, u16 *, u16 *);
 //scrolling
 void bg_scroll();
 void bg_scrollLeft();
@@ -55,15 +58,17 @@ int isValidMapPosition ( int x, int y);
 void bg_init()
 //I:	none
 //O:	backgrounds are initialized.
-//		bg3 - 256 x 256 pixels, 32x32 8x8 tiles, located in ScreenBaseBlock 31
-//		bg2 - 256 x 256 pixels, 32x32 8x8 tiles, located in ScreenBaseBlock 30
+//		bg3 - 512 x 512 pixels, 64x64 8x8 tiles, located in ScreenBaseBlocks 28-31
+//		bg2 - 512 x 512 pixels, 64x64 8x8 tiles, located in ScreenBaseBlocks 24-27
 //		Mode is set to 0, currently 2 backgrounds enabled.
 //R:	none
 {
     //set up background 0
     //We are using a 256x256 Map which is placed in ScreenBaseBlock 31
-    REG_BG3CNT = BG_COLOR256 | TEXTBG_SIZE_256x256 | (31 << SCREEN_SHIFT);
-	REG_BG2CNT = BG_COLOR256 | TEXTBG_SIZE_256x256 | (30 << SCREEN_SHIFT) | ( 1 << CHAR_SHIFT);
+    //REG_BG3CNT = BG_COLOR256 | TEXTBG_SIZE_256x256 | (31 << SCREEN_SHIFT);
+	//REG_BG2CNT = BG_COLOR256 | TEXTBG_SIZE_256x256 | (30 << SCREEN_SHIFT) | ( 1 << CHAR_SHIFT);
+	REG_BG3CNT = BG_COLOR256 | TEXTBG_SIZE_512x512 | (28 << SCREEN_SHIFT);
+	REG_BG2CNT = BG_COLOR256 | TEXTBG_SIZE_512x512 | (24 << SCREEN_SHIFT) | ( 1 << CHAR_SHIFT );
     //set video mode 0 with background 0
     SetMode(0|BG3_ENABLE|BG2_ENABLE|OBJ_ENABLE|OBJ_MAP_1D);
 	
@@ -104,7 +109,7 @@ void bg_load(int *x, int *y, const u16 * currPal, const u16 * currMap, const u16
 	myBg.mtw = width / 8;
 	myBg.mth = height / 8;
 	myBg.numtiles = myBg.mtw * myBg.mth;
-	myBg.bgtiles = 32 *32;
+	myBg.bgtiles = 64 *64;
 	
 	myBg.select = malloc ( sizeof ( u16 ) * myBg.numtiles );
 	myBg.movesleft = malloc ( sizeof ( short ) * (myBg.numtiles/4));
@@ -118,14 +123,20 @@ void bg_load(int *x, int *y, const u16 * currPal, const u16 * currMap, const u16
 
     //copy the tile map into background 0
     int i, j, k = 0;
-    for ( j = 0; j < 32; j++ )
+    /*for ( j = 0; j < 32; j++ )
         for ( i = 0; i < 32; i++ )
 		{
             bg3map[k] = myBg.map[j * myBg.mtw + i];
 			//bg2map[k] = bluetileMap[0];
 			k++;
 		}
-    
+    */
+	for ( j = 0; j < 64; j++ )
+        for ( i = 0; i < 64; i++ )
+		{
+			bg_loadTile(j,i, bg3map, myBg.map);
+		}
+	
 	myBg.x = 0;
 	REG_BG3HOFS = 0;
 	REG_BG2HOFS = 0 ;
@@ -135,6 +146,32 @@ void bg_load(int *x, int *y, const u16 * currPal, const u16 * currMap, const u16
 	
 	bg_clearMoveable();
 }
+
+void bg_loadTile(int x,int y, u16 * thisBg ,u16 * thisMap)
+//I:	x and y tile coordinates, the bg to load into, the map to load from
+//O:	the tile in thisMap is loaded into the correct place is thisBg (1 of 4 different 32*32 bgs)
+//R:	none
+{
+	if ( y < 32 )
+		if ( x < 32 )
+			{
+				thisBg[y*32+x] = thisMap[y * myBg.mtw + x];
+			}
+		else//x>=32
+			{
+				thisBg[32*32+y*32+x-32] = thisMap[y*myBg.mtw+x];
+			}
+	else//y>=32
+		if ( x < 32 )
+			{
+				thisBg[32*32*2+(y-32)*32+x] = thisMap[y * myBg.mtw +x];
+			}
+		else//x>=32
+			{
+				thisBg[32*32*3+(y-32)*32+(x-32)] = thisMap[y*myBg.mtw+x];
+			}
+}
+	
 
 void bg_scroll()
 //I:	scrolling registers
@@ -185,7 +222,7 @@ void bg_scroll()
 	
 
 	
-    if (delta_x == 8 )
+    /*if (delta_x == 8 )
 		bg_scrollRight();
     else if (delta_x == -8 )
     	bg_scrollLeft();
@@ -193,9 +230,9 @@ void bg_scroll()
     if (delta_y == 8  )
 		bg_scrollDown();		
     else if (delta_y == -8 )
-		bg_scrollUp();
+		bg_scrollUp();*/
 }
-
+/*
 void bg_scrollLeft()
 //I:	none
 //O:	bg scrolls one 8 pixel wide ( 1 tile ) column to the left
@@ -353,7 +390,7 @@ void bg_scrollDown()
         delta_y = 0;
     }
 }
-
+*/
 int isValidMapPosition ( int x, int y)
 //I:    a position, given  by x and y coords
 //O:    none
@@ -378,7 +415,7 @@ void bg_drawMoveableArea ( int i, int moves)
 	}
 	
 	bg_drawMoveableSquares ( mysprites[i].x/8, mysprites[i].y/8, moves);
-	bg_updateMoveable();
+	//bg_updateMoveable();
 	
 	
 }
@@ -420,18 +457,25 @@ void bg_drawMoveableSquare ( int x, int y )
 //R:	none
 {
 	//hardcoded....
+	//copy into the select array that is actually arranged logically.
 	myBg.select[y*myBg.mtw + x] = showmovesMap[2];
 	myBg.select[y*myBg.mtw + x + 1] = showmovesMap[3];
 	myBg.select[(y+1)*myBg.mtw+ x] = showmovesMap[6];
 	myBg.select[(y+1)*myBg.mtw+ x+1] = showmovesMap[7];
+	//load this square ( 4 tiles ) into bg2
+	bg_loadTile(x,y,bg2map, myBg.select);
+	bg_loadTile(x+1,y,bg2map, myBg.select);
+	bg_loadTile(x,y+1,bg2map, myBg.select);
+	bg_loadTile(x+1,y+1,bg2map, myBg.select);
 }
+
 
 void bg_clearMoveable()
 //I:	none
 //O:	the move selection background and map are reset
 //R:	none
 {
-	int i, max = 32 * 32;
+	int i, max = 64 * 64;
 	//clear moveable bg
 	for ( i = 0; i < max; ++i )
 		bg2map[i] = showmovesMap[0];
@@ -458,15 +502,18 @@ void bg_updateMoveable()
 	int y = myBg.y / 8;
 	
 	int i, j;
-	for ( i = 0; i < 32 ; ++i )
-		for ( j = 0; j < 32; j++ )
+	for ( i = 0; i < 64 ; ++i )
+		for ( j = 0; j < 64; j++ )
 		{
 			//modulus is magic!
-			bg2map[((i+y-1)%32) * 32 + (j+x-1)%32 ] = myBg.select[( y-1+i ) * myBg.mtw + x-1 + j];
+			bg_loadTile(i, j, bg2map, myBg.select);
 		}
 }
 
 int bg_tileOccupied ( int x, int y )
+//I:	the x and y coordinates of the upper left corner of a tile
+//O:	none		
+//R:	true if the tile is currently occupied by a player or zombie, false otherwise
 {
 	int i;
 	int result = 0;
