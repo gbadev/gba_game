@@ -1,6 +1,14 @@
 //sprite.h
 //poop
 #include "stack.h"
+#include "master_pal"
+#include "animations.h"
+#include "dave_tank_sprites.h"
+#include "dave_zombie_sprites.h"
+#include "scott_char.h"
+#include "scott_zomb.h"
+#include "sean_grenadier.h"
+#include "thomas_all_chars.h"
 
 void sprite_init();
 
