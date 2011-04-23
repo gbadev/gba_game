@@ -119,7 +119,7 @@ void bg_load(int *x, int *y, const u16 * currPal, const u16 * currMap, const u16
     DMAFastCopy((void*)myBg.pal, (void*)BGPaletteMem, 256, DMA_16NOW);
     //copy the tile images into the tile memory
     DMAFastCopy((void*)myBg.tiles, (void*)CharBaseBlock(0), 6976/4, DMA_32NOW);		//need to change to be dynamic
-	DMAFastCopy((void*)showmovesTiles, (void*)CharBaseBlock(1),128/4, DMA_32NOW);
+	DMAFastCopy((void*)fontTiles, (void*)CharBaseBlock(1),1088, DMA_32NOW);
     //4992 = #Tiles * 64
 
     //copy the tile map into background 0

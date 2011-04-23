@@ -8,9 +8,11 @@
 #include "graphics/showmoves.h"
 #include "graphics/robot.h"
 #include "graphics/ui.h"
+#include "graphics/font.h"
 //source - needs to have graphics loaded before source
 #include "bg.h"
 #include "sprite.h"
+#include "tty.h"
 
 
 

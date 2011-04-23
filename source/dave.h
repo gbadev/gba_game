@@ -5,8 +5,6 @@
 #include <string.h>
 #include <math.h>
 
-#include "font.h"
-
 #define u16 unsigned short
 
 #define REG_DISPCNT *(unsigned long*) 0x4000000
@@ -352,7 +350,7 @@ void DrawBmp3 ( int x, int y, const unsigned short * bmp, int width, int height 
 }
 
 //STUFF FOR PROJECT 4
-
+/*
 void DrawChar(int left, int top, char letter, unsigned short color, int size)
 //I:    a position, a character to draw, a color, and a size
 //O:    char of given size and color is drawn to videoBuffer
@@ -400,6 +398,7 @@ void Print(int left, int top, char *str, unsigned short color, int size)
         pos += findOffset( *str++ ) * size;
     }
 }
+*/
 
 //STUFF FOR PROJECT 5
 #define REG_DMA3SAD *(volatile unsigned int*)0x40000D4
