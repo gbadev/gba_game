@@ -40,10 +40,7 @@ void bg_load(int *x, int *y, const u16 * currPal, const u16 * currMap, const u16
 void bg_loadTile(int , int, u16 *, u16 *);
 //scrolling
 void bg_scroll();
-void bg_scrollLeft();
-void bg_scrollRight();
-void bg_scrollUp();
-void bg_scrollDown();
+
 //moveableArea
 void bg_drawMoveableArea ( int, int moves);
 void bg_drawMoveableSquares ( int, int, int );
@@ -131,8 +128,8 @@ void bg_load(int *x, int *y, const u16 * currPal, const u16 * currMap, const u16
 			k++;
 		}
     */
-	for ( j = 0; j < 64; j++ )
-        for ( i = 0; i < 64; i++ )
+	for ( j = 0; j < myBg.mth; j++ )
+        for ( i = 0; i < myBg.mtw; i++ )
 		{
 			bg_loadTile(j,i, bg3map, myBg.map);
 		}
@@ -220,177 +217,8 @@ void bg_scroll()
     REG_BG3HOFS = myBg.x ;
 	REG_BG2HOFS = myBg.x ;
 	
-
-	
-    /*if (delta_x == 8 )
-		bg_scrollRight();
-    else if (delta_x == -8 )
-    	bg_scrollLeft();
-		//if you have moved 8 pixels down
-    if (delta_y == 8  )
-		bg_scrollDown();		
-    else if (delta_y == -8 )
-		bg_scrollUp();*/
-}
-/*
-void bg_scrollLeft()
-//I:	none
-//O:	bg scrolls one 8 pixel wide ( 1 tile ) column to the left
-//R:	none
-{
-	int bgstart, bgoffset, mstart, moffset, bgindex, mindex, i;
-	int xi = myBg.x/8;
-	int	yi = myBg.y/8;
-	//moving left
-    //find start indexes
-    bgstart = (( ((yi+31)%32 ) * 32 ) + ( ( xi + 31 ) %32 ))%myBg.numtiles;
-    mstart = (( yi-1) * myBg.mtw ) + ( xi - 1 );
-    
-	for ( i = 0; i < 32; i++ )
-    {
-		//find offsets
-		bgoffset = i * 32;
-        moffset = i * myBg.mtw;
-                
-        //calcuate indexes
-        bgindex = ( bgstart + bgoffset );
-		if (bgindex >= myBg.bgtiles)
-			bgindex -= myBg.bgtiles;
-        mindex = mstart + moffset;
-                
-        //if index is valid
-        if ( isValidMapPosition (  xi-1, yi - 1 + i ) == 1 && bgindex >= 0 && mindex>=0)
-        {
-			//write
-			WaitVBlank();
-            bg3map[ bgindex ] = myBg.map[ mindex ];
-			bg2map[ bgindex ] = myBg.select[ mindex ];
-        }
-        //reset delta x
-        delta_x = 0;
-    }
 }
 
-void bg_scrollRight()
-//I:	none
-//O:	bg scrolls one 8 pixel wide ( 1 tile ) column to the right
-//R:	none
-{
-	int bgstart, bgoffset, mstart, moffset, bgindex, mindex, i;
-	int xi = myBg.x/8;
-	int	yi = myBg.y/8;
-	//moving right
-    //find start indexes
-    bgstart = (( ((yi + 31)%32) * 32 ) + ( (xi + 30) % 32 ))%myBg.numtiles;
-    mstart = ( (yi - 1) * myBg.mtw )+ ( xi + 30 );
-
-    for ( i = 0; i < 32; i++ )
-    {
-		//find offset
-        bgoffset = i * 32;
-        moffset =  i * myBg.mtw;
-		//calculate indexes
-        bgindex = ( bgstart + bgoffset );
-		if (bgindex >= myBg.bgtiles)
-			bgindex -= myBg.bgtiles;
-        mindex = mstart + moffset;
-                
-        //if index is valid
-        if ( isValidMapPosition (  xi+30, yi - 1 + i ) == 1 && bgindex >= 0 && mindex>=0)
-        {
-			//write
-			WaitVBlank();
-            bg3map[ bgindex ] = myBg.map[ mindex ];
-			bg2map[ bgindex ] = myBg.select[ mindex ];
-        }
-        //reset delta x to 0
-        delta_x = 0;
-    }
-}
-
-void bg_scrollUp()
-//I:	none
-//O:	bg scrolls one 8 pixel high ( 1 tile ) row up
-//R:	none
-{
-	int bgstart, bgoffset, mstart, moffset, bgindex, mindex,i;
-	int xi = myBg.x/8;
-	int	yi = myBg.y/8;
-	//moving up
-    //find start indexes
-    bgstart = (( ( (yi + 31 ) % 32) * 32 + ((xi +31)% 32) ))%myBg.numtiles;
-    mstart = ( yi - 1 ) * myBg.mtw + xi - 1;
- 
-    for ( i = 0; i < 32; i++ )
-    {
-		//find offsets
-        bgoffset = i;
-        moffset = i;
-        //calculate indexes
-        bgindex = bgstart + bgoffset;
-        mindex = mstart + moffset;
-
-        //if index is valid
-        if ( isValidMapPosition (  (xi - 1) + moffset, yi - 1 ) && bgindex >= 0 && mindex>=0)
-        {
-			//find end of current row
-            int nextrow = bgstart - ( bgstart % 32 ) + 32;
-            //stay in current row
-            if ( bgindex >= nextrow)
-            {
-				bgindex -= 32;
-            }
-            //write!
-			WaitVBlank();
-            bg3map[ bgindex ] = myBg.map[ mindex ];
-			bg2map[ bgindex ] = myBg.select[ mindex ];
-        }
-        //reset delta y
-        delta_y = 0;
-    }
-}
-
-void bg_scrollDown()
-//I:	none
-//O:	bg scrolls one 8 pixel high ( 1 tile ) row down
-//R:	none
-{
-	int bgstart, bgoffset, mstart, moffset, bgindex, mindex,i;
-	int xi = myBg.x/8;
-	int	yi = myBg.y/8;
-	//moving down
-    //bg start
-    bgstart = (( ( ( yi + 30 )% 32 ) * 32 + ((xi +31 ) % 32) ))%myBg.numtiles;
-    //map start
-    mstart = ( yi + 30 ) * myBg.mtw + xi - 1;
-    for ( i = 0; i < 32; i++ )
-    {
-        //find offsets
-        bgoffset = i;
-        moffset = i;
-        //calculate index
-        bgindex = bgstart + bgoffset;
-        mindex = mstart + moffset;
-
-        //check if index is valid
-        if ( isValidMapPosition ( xi - 1 + moffset, yi+30) && bgindex >= 0 && mindex>=0)
-        {
-            //find end of current row
-            int nextrow = bgstart - ( bgstart % 32 ) + 32;
-            //stay in current row
-            if ( bgindex >= nextrow )
-                bgindex -=32;
-                    
-            //write!
-			WaitVBlank();
-            bg3map[ bgindex ] = myBg.map [ mindex ];
-			bg2map[ bgindex ] = myBg.select[ mindex ];
-        }
-        //reset delta y
-        delta_y = 0;
-    }
-}
-*/
 int isValidMapPosition ( int x, int y)
 //I:    a position, given  by x and y coords
 //O:    none
@@ -498,8 +326,6 @@ void bg_updateMoveable()
 {
 	
 	//find tile indexes
-	int x = myBg.x / 8;
-	int y = myBg.y / 8;
 	
 	int i, j;
 	for ( i = 0; i < 64 ; ++i )

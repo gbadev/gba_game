@@ -38,7 +38,12 @@ int PathFinder ( Stack * sptr, int this_x, int this_y, int end_x, int end_y,int 
 void sprite_findPath(int i, int start_x, int start_y, int end_x, int end_y );
 
 
-
+#define TANK_START 0
+#define ZOMB_START 20
+#define SNIP_START 37
+#define SPIT_START 54
+#define GREN_START 71
+#define HEAL_START 88
 /*
 	0 dave_tank_sprites - 2560
 	1 dave_zombie_sprites - 2176
@@ -74,8 +79,8 @@ const unsigned int the_sprites_lengths[7] = {
 	2176,
 	2176,
 	2176,
-	2048,
-	2304,
+	2176,
+	2432,
 	1536
 };
 const unsigned short *the_sprites[7] = {
@@ -135,22 +140,53 @@ void sprite_init()
     {
 		mysprites[n].x = -160;
 		mysprites[n].y = -160;
-        sprites[n].attribute0 = -160; //using copy of OAM
+		mysprites[n].isTank = 0;
+		mysprites[n].isGren = 0;
+		mysprites[n].isSnip = 0;
+		mysprites[n].isHeal = 0;
+		mysprites[n].isZomb = 0;
+		mysprites[n].isSpit = 0;
+        mysprites[i].facingDown = 0;
+		mysprites[i].facingUp = 0;
+		mysprites[i].facingLeft = 0;
+		mysprites[i].facingRight = 0;
+		sprites[n].attribute0 = -160; //using copy of OAM
         sprites[n].attribute1 = -160;
 		sprites[n].attribute2 = n*8;
+		
     }
+	
+	mysprites[0].isTank = 1; //init characters
+	sprites[0].attribute2 = 8 * TANK_START;
+	mysprites[1].isGren = 1;
+	sprites[1].attribute2 = 8 * GREN_START;
+	mysprites[2].isSnip = 1;
+	sprites[2].attribute2 = 8 * SNIP_START;
+	mysprites[3].isHeal = 1;
+	sprites[3].attribute2 = 8 * HEAL_START;
+	mysprites[4].isZomb = 1;
+	sprites[4].attribute2 = 8 * ZOMB_START;
+	mysprites[5].isSpit = 1;
+	sprites[5].attribute2 = 8 * SPIT_START;
 	
 	//TODO : remove this crap
     sprite_setTilePos ( 0, 0, 0 );
 	sprite_setTilePos ( 1, 2, 0 );
 	sprite_setTilePos ( 2, 0, 2 );
-	
+	sprite_setTilePos ( 3, 0, 8 );
+	sprite_setTilePos ( 4, 8, 0 );
+	sprite_setTilePos ( 5, 8, 8 );
+	/*
     sprites[0].attribute2 = 0;
 	sprites[1].attribute2 = 8;
-	sprites[2].attribute2 = 16;
-	sprites[127].attribute2 = 0;
+	sprites[2].attribute2 = 16;*/
+	sprites[127].attribute2 = 107*8; //init cursor;
+	
+	
     UpdateSpriteMemory();
 }
+
+
 
 void sprite_setPos( int index, int x, int y )
 //I:	a sprite index, a position given in x and y coordinates
@@ -175,8 +211,8 @@ void sprite_draw( int index, int x, int y )
 //O:	OAM mem is updated so that sprite i is dipslayed with upper left corner at x,y
 //R:	none
 {
-	sprites[index].attribute1 = SIZE_16 | x;
-	sprites[index].attribute0 = COLOR_256 | SQUARE | y;
+	sprites[index].attribute1 = SIZE_16 | x | (mysprites[index].facingLeft * HORIZONTAL_FLIP);
+	sprites[index].attribute0 = COLOR_256 | SQUARE | y ;
 }
 
 
@@ -244,17 +280,45 @@ void sprite_move ( int i )
 	}
 
 }
-
+int findAnimOffset ( int i )
+{
+	int offset = 0;
+	if ( mysprites[i].isTank )
+		offset = TANK_START;
+	else if ( mysprites[i].isGren )
+		offset = GREN_START;
+	else if ( mysprites[i].isSnip )
+		offset = SNIP_START;
+	else if ( mysprites[i].isHeal )
+		offset = HEAL_START;
+	else if( mysprites[i].isZomb )
+		offset = ZOMB_START;
+	else if ( mysprites[i].isSpit )
+		offset = SPIT_START;
+	return offset * 8;
+}
 //whoami(sprite) + direction + slide number
 void sprite_moveDown(int i)
 {
 	volatile int n;
 	int j;
+	int offset = findAnimOffset(i);
+	
+	//if ( !mysprites[i].facingDown )
+	//{	//flip that bitch!
+	//	sprites[i].attribute1 = SIZE_16 | (myBg.x - mysprites[i].x) ;
+	//}
+	
+	mysprites[i].facingDown = 1;
+	mysprites[i].facingUp = 0;
+	mysprites[i].facingLeft = 0;
+	mysprites[i].facingRight = 0;
 	
 	for ( j = 0; j < 16; j++)
 	{
 		mysprites[i].y++;
-		sprites[i].attribute2 =  (0*8 + (j%4)*8);
+		if ( i != 127 )
+			sprites[i].attribute2 =  (offset + (j%3)*8);
 		sprite_updateAll();
 		for ( n = 0; n < 10000; n++);
 	}
@@ -264,11 +328,25 @@ void sprite_moveUp(int i)
 {
 	volatile int n;
 	int j;
-	int k = sprites[i].attribute2;
+	int offset = findAnimOffset(i);
+	
+	offset += 3 * 8;
+	
+	//if ( !mysprites[i].facingUp )
+	//{	//flip that bitch!
+	//	sprites[i].attribute1 = SIZE_16 | (myBg.x - mysprites[i].x) ;
+	//}
+	
+	mysprites[i].facingDown = 0;
+	mysprites[i].facingUp = 1;
+	mysprites[i].facingLeft = 0;
+	mysprites[i].facingRight = 0;
+	
 	for ( j = 0; j < 16; j++)
 	{
 		mysprites[i].y--;
-		sprites[i].attribute2 =  (0*8 + (j%4)*8);
+		if ( i != 127 )
+			sprites[i].attribute2 =  (offset + (j%3)*8);
 		sprite_updateAll();
 		for ( n = 0; n < 10000; n++);
 	}
@@ -278,11 +356,28 @@ void sprite_moveRight(int i)
 {
 	volatile int n;
 	int j;
-	int k = sprites[i].attribute2;
+	int offset = findAnimOffset(i);
+	
+	offset += 6 * 8;
+
+	//if ( !mysprites[i].facingRight )
+	//{	//flip that bitch!
+	//	sprites[i].attribute1 = SIZE_16 | (myBg.x - mysprites[i].x) ;
+	//}
+	
+	mysprites[i].facingDown = 0;
+	mysprites[i].facingUp = 0;
+	mysprites[i].facingLeft = 0;
+	mysprites[i].facingRight = 1;
+
+	
 	for ( j = 0; j < 16; j++)
 	{
 		mysprites[i].x++;
-		sprites[i].attribute2 = (0*8 + (j%4)*8);
+		//flip that bitch!
+		sprites[i].attribute1 = SIZE_16 | (myBg.x - mysprites[i].x) | HORIZONTAL_FLIP;
+		if ( i != 127 )
+			sprites[i].attribute2 = (offset + (j%4)*8);
 		sprite_updateAll();
 		for ( n = 0; n < 10000; n++);
 	}
@@ -291,11 +386,25 @@ void sprite_moveLeft(int i)
 {
 	volatile int n;
 	int j;
-	int k = sprites[i].attribute2;
+	int offset = findAnimOffset(i);
+	
+	offset += 6 * 8;
+	
+	//if ( !mysprites[i].facingLeft )
+	//{	//flip that bitch!
+	//	sprites[i].attribute1 = SIZE_16 | (myBg.x - mysprites[i].x)| HORIZONTAL_FLIP;
+	//}
+	
+	mysprites[i].facingDown = 0;
+	mysprites[i].facingUp = 0;
+	mysprites[i].facingLeft = 1;
+	mysprites[i].facingRight = 0;
+	
 	for ( j = 0; j < 16; j++)
 	{
 		mysprites[i].x--;
- 		sprites[i].attribute2 = (0*8 + (j%4)*8);
+		if ( i != 127 )
+			sprites[i].attribute2 = (offset + (j%4)*8);
 		sprite_updateAll();
 		for ( n = 0; n < 10000; n++);
 	}
@@ -345,6 +454,9 @@ void sprite_findPath(int i, int start_x, int start_y, int end_x, int end_y )
 	}
 	stack_free ( &s_moves );
 	
+	mysprites[127].x = -160;
+	mysprites[127].y = -160;
+	sprite_updateAll();
 
 }
 

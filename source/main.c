@@ -62,7 +62,7 @@ int main ( void )
 			bg_clearMoveable();
 			mode = 0;
 			curr++;
-			if ( curr > 2 )
+			if ( curr > 5 )
 				curr = 0;
 		}
 		

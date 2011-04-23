@@ -3,11 +3,11 @@
 
 //======================================================================
 //
-//	thomas_all_chars, 16x288@8, 
-//	+ 72 tiles Metatiled by 2x2 not compressed
-//	Total size: 4608 = 4608
+//	thomas_all_chars, 16x304@8, 
+//	+ 76 tiles Metatiled by 2x2 not compressed
+//	Total size: 4864 = 4864
 //
-//	Time-stamp: 2011-04-21, 02:33:30
+//	Time-stamp: 2011-04-23, 02:35:40
 //	Exported by Cearn's GBA Image Transmogrifier, v0.8.6
 //	( http://www.coranac.com/projects/#grit )
 //
@@ -16,8 +16,8 @@
 #ifndef GRIT_THOMAS_ALL_CHARS_H
 #define GRIT_THOMAS_ALL_CHARS_H
 
-#define thomas_all_charsTilesLen 4608
-extern const unsigned short thomas_all_charsTiles[2304];
+#define thomas_all_charsTilesLen 4864
+extern const unsigned short thomas_all_charsTiles[2432];
 
 #endif // GRIT_THOMAS_ALL_CHARS_H
 

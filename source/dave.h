@@ -469,6 +469,16 @@ typedef struct tagSpriteHanlder
     int dirx, diry;
     int alive;
     int flipped;
+	short isTank;
+	short isGren;
+	short isSnip;
+	short isHeal;
+	short isZomb;
+	short isSpit;
+	short facingRight;
+	short facingLeft;
+	short facingUp;
+	short facingDown;
 
 }SpriteHanlder;
 SpriteHanlder mysprites[128];
