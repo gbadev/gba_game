@@ -7,6 +7,7 @@
 #include "graphics/gravedemoshadow.h"
 #include "graphics/showmoves.h"
 #include "graphics/robot.h"
+#include "graphics/ui.h"
 //source - needs to have graphics loaded before source
 #include "bg.h"
 #include "sprite.h"
@@ -19,8 +20,9 @@ int main ( void )
     volatile int n;
 	
 	//x and y scrolling registers, index
-	int y, x, i;
-    x = y = 0;
+	int y, x;
+    x = -32;
+	y = -16;
 	int curr = 0;
 	
 	//init
