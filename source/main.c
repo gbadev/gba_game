@@ -1,6 +1,10 @@
-
-
+//defines
 #include "dave.h"//must be loaded first!
+
+//resources
+#include "stack.h"
+#include "linked_list.h"
+
 //graphics
 #include "scott.h"
 #include "graphics/gravedemo.h"
@@ -9,11 +13,12 @@
 #include "graphics/robot.h"
 #include "graphics/ui.h"
 #include "graphics/font.h"
+
+
 //source - needs to have graphics loaded before source
 #include "bg.h"
 #include "sprite.h"
-#include "tty.h"
-
+#include "tc.h"
 
 
 int main ( void )
@@ -36,6 +41,8 @@ int main ( void )
 	//bg_load(&x,&y); //initializes and loads gravedemomap
 	//sprite_load();
 	
+	tc_init();
+	
 	int mode = 0;
     //game loop
     while ( 1 )
@@ -50,8 +57,9 @@ int main ( void )
 			
 		if (Pressed(BUTTON_A) && mode == 0)
 		{
+			curr = tc_getNext();
 			sprite_setPos ( 127, mysprites[curr].x, mysprites[curr].y );
-			bg_drawMoveableArea(curr, 10);
+			bg_drawMoveableArea(curr, getRange(curr));
 			mode = 1;
 		}
 		else if (Pressed(BUTTON_B) && mode == 1 )
@@ -65,9 +73,9 @@ int main ( void )
 			sprite_findPath ( curr, start_x, start_y, end_x, end_y );
 			bg_clearMoveable();
 			mode = 0;
-			curr++;
-			if ( curr > 5 )
-				curr = 0;
+			//curr++;
+			//if ( curr > 5 )
+			//	curr = 0;
 		}
 		
 		if ( mode == 1 )

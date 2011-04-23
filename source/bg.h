@@ -16,6 +16,8 @@ typedef struct tagBgHandler
 	int mth;	//map tile height
 	int numtiles;
 	int bgtiles;
+	
+	int numStartZombies;
 
 }BgHandler;
 BgHandler myBg;
@@ -83,6 +85,7 @@ void bg_init()
 	myBg.mth = 0;
 	myBg.numtiles = 0;
 	myBg.bgtiles = 0;
+	myBg.numStartZombies = 0;
 	
 	myBg.select = NULL;
 	myBg.movesleft = NULL;
@@ -119,7 +122,7 @@ void bg_load(int *x, int *y, const u16 * currPal, const u16 * currMap, const u16
     DMAFastCopy((void*)myBg.pal, (void*)BGPaletteMem, 256, DMA_16NOW);
     //copy the tile images into the tile memory
     DMAFastCopy((void*)myBg.tiles, (void*)CharBaseBlock(0), 6976/4, DMA_32NOW);		//need to change to be dynamic
-	DMAFastCopy((void*)fontTiles, (void*)CharBaseBlock(1),1088, DMA_32NOW);
+	DMAFastCopy((void*)fontTiles, (void*)CharBaseBlock(1),4416/4, DMA_32NOW);
     //4992 = #Tiles * 64
 
     //copy the tile map into background 0
@@ -140,11 +143,13 @@ void bg_load(int *x, int *y, const u16 * currPal, const u16 * currMap, const u16
 
 	for (i = 0; i<2; i++)
 		for ( j = 0; j < 32; ++j)
-			bg1map[i * 32 + j ] = showmovesMap[2];
+			bg1map[i * 32 + j ] = fontMap[1];
 	for (i = 2; i<32; i++)
 		for ( j = 0; j < 4; ++j)
-			bg1map[i * 32 + j ] = showmovesMap[2];
+			bg1map[i * 32 + j ] = fontMap[1];
 	
+	//TODO make this passable!
+	myBg.numStartZombies = 2;
 	
 	myBg.x = -32;
 	REG_BG3HOFS = -32;
@@ -275,16 +280,16 @@ void bg_drawMoveableSquares ( int x, int y, int moves )
 		if ( moves )
 		{
 			//check to see if tile is passable before recursively calling in all directions
-			if ( isValidMapPosition ( x-2, y ) &&myBg.shadow[y * myBg.mtw + x - 2 ] != 0x1001
+			if ( isValidMapPosition ( x-2, y ) &&myBg.shadow[y * myBg.mtw + x - 2 ] != fontMap[64]
 				&& !bg_tileOccupied ( (x-2)*8, y*8 ))
 				bg_drawMoveableSquares ( x - 2, y , moves - 1 );
-			if ( isValidMapPosition ( x+2, y ) &&myBg.shadow[y * myBg.mtw + x + 2 ] != 0x1001 
+			if ( isValidMapPosition ( x+2, y ) &&myBg.shadow[y * myBg.mtw + x + 2 ] != fontMap[64]
 				&& !bg_tileOccupied ( (x+2)*8, y*8 ))
 				bg_drawMoveableSquares ( x + 2, y , moves - 1 );
-			if ( isValidMapPosition ( x, y-2 ) &&myBg.shadow[( y - 2 ) * myBg.mtw + x ] != 0x1001 
+			if ( isValidMapPosition ( x, y-2 ) &&myBg.shadow[( y - 2 ) * myBg.mtw + x ] != fontMap[64]
 				&& !bg_tileOccupied ( x*8, (y-2)*8 ))
 				bg_drawMoveableSquares ( x, y - 2 , moves - 1 );
-			if ( isValidMapPosition ( x, y+2 ) &&myBg.shadow[( y + 2 ) * myBg.mtw + x ] != 0x1001 
+			if ( isValidMapPosition ( x, y+2 ) &&myBg.shadow[( y + 2 ) * myBg.mtw + x ] != fontMap[64]
 				&& !bg_tileOccupied ( x*8, (y+2)*8 ))
 				bg_drawMoveableSquares ( x, y  + 2, moves - 1 );
 		}
@@ -298,10 +303,10 @@ void bg_drawMoveableSquare ( int x, int y )
 {
 	//hardcoded....
 	//copy into the select array that is actually arranged logically.
-	myBg.select[y*myBg.mtw + x] = showmovesMap[2];
-	myBg.select[y*myBg.mtw + x + 1] = showmovesMap[3];
-	myBg.select[(y+1)*myBg.mtw+ x] = showmovesMap[6];
-	myBg.select[(y+1)*myBg.mtw+ x+1] = showmovesMap[7];
+	myBg.select[y*myBg.mtw + x] = fontMap[64];
+	myBg.select[y*myBg.mtw + x + 1] = fontMap[65];
+	myBg.select[(y+1)*myBg.mtw+ x] = fontMap[66];
+	myBg.select[(y+1)*myBg.mtw+ x+1] = fontMap[67];
 	//load this square ( 4 tiles ) into bg2
 	bg_loadTile(x,y,bg2map, myBg.select);
 	bg_loadTile(x+1,y,bg2map, myBg.select);
@@ -318,11 +323,11 @@ void bg_clearMoveable()
 	int i, max = 64 * 64;
 	//clear moveable bg
 	for ( i = 0; i < max; ++i )
-		bg2map[i] = showmovesMap[0];
+		bg2map[i] = fontMap[0];
 		
 	//clear moveable map
 	for ( i = 0; i < myBg.numtiles; ++i )
-		myBg.select[i] =  showmovesMap[0];
+		myBg.select[i] =  fontMap[0];
 		//myBg.select[i] = 0;
 		
 	//clear movesleft map

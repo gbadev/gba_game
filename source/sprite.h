@@ -1,6 +1,6 @@
 //sprite.h
 //poop
-#include "stack.h"
+//#include "stack.h"
 #include "graphics/sprites/master_pal.h"
 #include "graphics/sprites/animations.h"
 #include "graphics/sprites/dave_tank_sprites.h"
@@ -150,6 +150,7 @@ void sprite_init()
 		mysprites[i].facingUp = 0;
 		mysprites[i].facingLeft = 0;
 		mysprites[i].facingRight = 0;
+		mysprites[i].nextTurn = 0;
 		sprites[n].attribute0 = -160; //using copy of OAM
         sprites[n].attribute1 = -160;
 		sprites[n].attribute2 = n*8;
@@ -158,16 +159,22 @@ void sprite_init()
 	
 	mysprites[0].isTank = 1; //init characters
 	sprites[0].attribute2 = 8 * TANK_START;
+	mysprites[0].nextTurn = TANK_S;
 	mysprites[1].isGren = 1;
 	sprites[1].attribute2 = 8 * GREN_START;
+	mysprites[1].nextTurn = GRENADE_S;
 	mysprites[2].isSnip = 1;
 	sprites[2].attribute2 = 8 * SNIP_START;
+	mysprites[2].nextTurn = RANGE_S;
 	mysprites[3].isHeal = 1;
 	sprites[3].attribute2 = 8 * HEAL_START;
+	mysprites[3].nextTurn = HEAL_S;
 	mysprites[4].isZomb = 1;
 	sprites[4].attribute2 = 8 * ZOMB_START;
+	mysprites[4].nextTurn = ZOMBIE_S;
 	mysprites[5].isSpit = 1;
 	sprites[5].attribute2 = 8 * SPIT_START;
+	mysprites[5].nextTurn = ZOMBIE_S;
 	
 	//TODO : remove this crap
     sprite_setTilePos ( 0, 0, 0 );
@@ -246,7 +253,7 @@ void sprite_move ( int i )
 	int y = mysprites[127].y/8;
 	sprite_updateAll();
 	
-	if ( Pressed(BUTTON_UP ) && y > 0 && myBg.select[( y - 2 ) * myBg.mtw + x ] == showmovesMap[2] )
+	if ( Pressed(BUTTON_UP ) && y > 0 && myBg.select[( y - 2 ) * myBg.mtw + x ] == fontMap[64] )
 	{
 		sprite_moveUp(127);
 		do
@@ -254,7 +261,7 @@ void sprite_move ( int i )
 			CheckButtons();
 		}while ( Pressed(BUTTON_UP ));
 	}
-	else if ( Pressed(BUTTON_DOWN ) && y < myBg.mth && myBg.select[( y + 2 ) * myBg.mtw + x ] == showmovesMap[2] )
+	else if ( Pressed(BUTTON_DOWN ) && y < myBg.mth && myBg.select[( y + 2 ) * myBg.mtw + x ] == fontMap[64] )
 	{
 		sprite_moveDown(127);
 		do
@@ -262,7 +269,7 @@ void sprite_move ( int i )
 			CheckButtons();
 		}while ( Pressed(BUTTON_DOWN ));
 	}
-	else if ( Pressed(BUTTON_LEFT ) && x > 0 && myBg.select[ y * myBg.mtw + x - 2 ] == showmovesMap[2] )
+	else if ( Pressed(BUTTON_LEFT ) && x > 0 && myBg.select[ y * myBg.mtw + x - 2 ] == fontMap[64])
 	{
 		sprite_moveLeft(127);
 		do
@@ -270,7 +277,7 @@ void sprite_move ( int i )
 			CheckButtons();
 		}while ( Pressed(BUTTON_LEFT ));
 	}
-	else if ( Pressed(BUTTON_RIGHT ) && x < myBg.mtw && myBg.select[ y * myBg.mtw + x + 2 ] == showmovesMap[2] )
+	else if ( Pressed(BUTTON_RIGHT ) && x < myBg.mtw && myBg.select[ y * myBg.mtw + x + 2 ] == fontMap[64] )
 	{
 		sprite_moveRight(127);
 		do

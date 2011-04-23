@@ -55,3 +55,10 @@ int turn_counter(int t[], int t_c[], t_s s)
 	}
 
 }
+
+
+
+
+
+
+

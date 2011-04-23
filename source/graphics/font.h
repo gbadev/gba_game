@@ -5,10 +5,11 @@
 //
 //	font, 8x544@8, 
 //	+ palette 256 entries, not compressed
-//	+ 68 tiles not compressed
-//	Total size: 512 + 4352 = 4864
+//	+ 69 tiles not compressed
+//	+ regular map (flat), not compressed, 1x68 
+//	Total size: 512 + 4416 + 136 = 5064
 //
-//	Time-stamp: 2011-04-23, 16:23:15
+//	Time-stamp: 2011-04-23, 17:21:29
 //	Exported by Cearn's GBA Image Transmogrifier, v0.8.6
 //	( http://www.coranac.com/projects/#grit )
 //
@@ -17,8 +18,11 @@
 #ifndef GRIT_FONT_H
 #define GRIT_FONT_H
 
-#define fontTilesLen 4352
-extern const unsigned int fontTiles[1088];
+#define fontTilesLen 4416
+extern const unsigned short fontTiles[2208];
+
+#define fontMapLen 136
+extern const unsigned short fontMap[68];
 
 #define fontPalLen 512
 extern const unsigned short fontPal[256];
