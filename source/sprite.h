@@ -218,8 +218,16 @@ void sprite_draw( int index, int x, int y )
 //O:	OAM mem is updated so that sprite i is dipslayed with upper left corner at x,y
 //R:	none
 {
-	sprites[index].attribute1 = SIZE_16 | x | (mysprites[index].facingLeft * HORIZONTAL_FLIP);
-	sprites[index].attribute0 = COLOR_256 | SQUARE | y ;
+	if ( index < 100 || index > 113 )
+	{
+		sprites[index].attribute1 = SIZE_16 | x | (mysprites[index].facingLeft * HORIZONTAL_FLIP);
+		sprites[index].attribute0 = COLOR_256 | SQUARE | y ;
+	}
+	else
+	{//special case for turn counter shit
+		sprites[index].attribute1 = SIZE_16 | (mysprites[index].x);
+		sprites[index].attribute0 = COLOR_256 | SQUARE | mysprites[index].y ;
+	}
 }
 
 
@@ -517,4 +525,58 @@ int PathFinder ( Stack* sptr, int this_x, int this_y, int end_x, int end_y, int 
 	}
 	return 0;
 }
+void sprite_Attack(int index, int x, int y)
+{
+	if (!(x == mysprites[index].x && y == mysprites[index].y ))
+	{
+		int offset = findAnimOffset(index);
+		if ( mysprites[index].x > x )
+		{//attacking left
+			mysprites[index].facingLeft = 1;
+			mysprites[index].facingRight = 0;
+			mysprites[index].facingUp = 0;
+			mysprites[index].facingDown = 0;
+			offset += 10*8;
+		}
+		else if ( mysprites[index].x < x )
+		{//attacking right
+			mysprites[index].facingLeft = 0;
+			mysprites[index].facingRight = 1;
+			mysprites[index].facingUp = 0;
+			mysprites[index].facingDown = 0;
+			offset += 10* 8;
+		}
+		else if ( mysprites[index].y > y )
+		{//attacking up
+			mysprites[index].facingLeft = 0;
+			mysprites[index].facingRight = 0;
+			mysprites[index].facingUp = 1;
+			mysprites[index].facingDown = 0;
+			offset += 14* 8;
+		}
+		else if ( mysprites[index].y < y )
+		{//attacking down
+			mysprites[index].facingLeft = 0;
+			mysprites[index].facingRight = 0;
+			mysprites[index].facingUp = 0;
+			mysprites[index].facingDown = 1;
+			offset += 12 * 8;
+		}
+		int j;
+		for ( j = 0; j < 16; j++)
+		{
+			sprites[index].attribute2 =  (offset + (j%2)*8);
+			sprite_updateAll();
+			volatile int n;
+			for ( n = 0; n < 10000; n++);
+		}
+		mysprites[127].x = -160;
+		mysprites[127].y = -160;
+		sprite_updateAll();
+		bg_clearMoveable();
+	
+	}
+}
+	
+
 //poop

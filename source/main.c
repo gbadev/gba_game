@@ -11,7 +11,6 @@
 #include "graphics/gravedemoshadow.h"
 #include "graphics/showmoves.h"
 #include "graphics/robot.h"
-#include "graphics/ui.h"
 #include "graphics/font.h"
 
 
@@ -19,6 +18,7 @@
 #include "bg.h"
 #include "sprite.h"
 #include "tc.h"
+#include "ui.h"
 
 
 int main ( void )
@@ -45,6 +45,8 @@ int main ( void )
 	
 	int mode = 0;
     //game loop
+	tc_updateTc();
+	ui_updateStatus();
     while ( 1 )
     {   
         //button polling
@@ -56,15 +58,17 @@ int main ( void )
 		}
 			
 		if (Pressed(BUTTON_A) && mode == 0)
-		{	
+		{	//show moveable are for curr char
 			tc_updateTc();
+			ui_updateStatus();
+			
 			curr = tc_getNext();
 			sprite_setPos ( 127, mysprites[curr].x, mysprites[curr].y );
 			bg_drawMoveableArea(curr, getRange(curr));
 			mode = 1;
 		}
-		else if (Pressed(BUTTON_B) && mode == 1 )
-		{
+		else if (Pressed(BUTTON_B) && mode == 1)
+		{//move char to cursor
 			int start_x, start_y, end_x, end_y;
 			start_x = mysprites[curr].x;
 			start_y = mysprites[curr].y;
@@ -73,14 +77,31 @@ int main ( void )
 			
 			sprite_findPath ( curr, start_x, start_y, end_x, end_y );
 			bg_clearMoveable();
-			mode = 0;
-			//curr++;
-			//if ( curr > 5 )
-			//	curr = 0;
+			sprite_setPos ( 127, -160, -160 );
+			
+			//draw attackable squares
+			int result = bg_drawAttackableSquares(curr);
+			if ( result )
+				mode = 2;
+			else
+				mode = 0;
+			tc_updateTc();
+			ui_updateStatus();
+
 		}
-		
-		if ( mode == 1 )
+		else if (Pressed(BUTTON_A) && mode == 2 )
 		{
+			sprite_Attack(curr, (mysprites[127].x), (mysprites[127].y));
+			mode = 0;
+			tc_updateTc();
+			ui_updateStatus();
+		}
+		/*else if (Pressed(BUTTON_B))
+		{
+			mode = 0;
+		}*/
+		if ( mode == 1 || mode == 2 )
+		{//move cursor
 			sprite_move(curr);
 
 		}

@@ -145,15 +145,15 @@ void bg_load(int *x, int *y, const u16 * currPal, const u16 * currMap, const u16
 		for ( j = 0; j < 32; ++j)
 			bg1map[i * 32 + j ] = fontMap[1];
 	for (i = 2; i<32; i++)
-		for ( j = 0; j < 4; ++j)
+		for ( j = 0; j < 2; ++j)
 			bg1map[i * 32 + j ] = fontMap[1];
 	
 	//TODO make this passable!
 	myBg.numStartZombies = 2;
 	
-	myBg.x = -32;
-	REG_BG3HOFS = -32;
-	REG_BG2HOFS = -32 ;
+	myBg.x = -16;
+	REG_BG3HOFS = -16;
+	REG_BG2HOFS = -16 ;
     myBg.y = -16;
 	REG_BG3VOFS = -16;
 	REG_BG2VOFS = -16 ;	
@@ -214,7 +214,7 @@ void bg_scroll()
     //process x movement
     //move left
     if( Pressed ( BUTTON_LEFT ))
-        if ( myBg.x > -32)
+        if ( myBg.x > -16)
         {
             (myBg.x)--;
             delta_x--;
@@ -237,7 +237,7 @@ void bg_scroll()
 }
 
 int isValidMapPosition ( int x, int y)
-//I:    a position, given  by x and y coords
+//I:    a position, given  by x and y tile coords
 //O:    none
 //R:    true if index is valid map index, false
 {
@@ -360,11 +360,65 @@ int bg_tileOccupied ( int x, int y )
 {
 	int i;
 	int result = 0;
-	for ( i = 0; i < 127 && !result; i++ )
-	{
+	for ( i = 0; i < 100 && !result; i++ )
+	{//only check possible character sprites
 		if ( x == mysprites[i].x && y == mysprites[i].y )
 			result = 1;
 	}
 	return result;
+}
+
+int bg_drawAttackableSquares(int index)
+{
+
+	int rval = 0;
+	bg_clearMoveable();
+	Stack x,y;
+	stack_init ( &x );
+	stack_init ( &y );
+	int xi = mysprites[index].x/8;
+	int yi = mysprites[index].y/8;
+	if ( isValidMapPosition ( xi+2, yi) && bg_tileOccupied(mysprites[index].x+16, mysprites[index].y ))
+	{
+		stack_push(&x, (mysprites[index].x+16));
+		stack_push(&y, (mysprites[index].y));
+		rval = 1;
+	}
+	if ( isValidMapPosition ( xi, yi+2) && bg_tileOccupied(mysprites[index].x, mysprites[index].y+16 ))
+	{
+		stack_push(&x, (mysprites[index].x));
+		stack_push(&y, (mysprites[index].y+16));
+		rval = 1;
+	}
+	if ( isValidMapPosition ( xi-2, yi) && bg_tileOccupied(mysprites[index].x-16, mysprites[index].y ))
+	{
+		stack_push(&x, (mysprites[index].x-16));
+		stack_push(&y, (mysprites[index].y));
+		rval = 1;
+	}
+	if ( isValidMapPosition ( xi, yi-2) && bg_tileOccupied(mysprites[index].x, mysprites[index].y-16 ))
+	{
+		stack_push(&x, (mysprites[index].x));
+		stack_push(&y, (mysprites[index].y-16));
+		rval = 1;
+		
+	}
+	
+	if (!stack_empty(&x))
+	{
+		bg_drawMoveableSquare (xi, yi);
+		mysprites[127].x = -160;
+		mysprites[127].y = -160;
+	}
+		
+	while (!stack_empty(&x))
+	{
+		bg_drawMoveableSquare (stack_pop(&x)/8, stack_pop(&y)/8);
+	}	
+	stack_free ( &x );
+	stack_free ( &y );
+	
+	
+	return rval;
 }
 	

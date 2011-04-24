@@ -5,9 +5,9 @@ typedef struct turn_node
 
 } t_node;
 
-int compare_t_nodes ( const void * a, const void * b );
+int compare_t_nodes ( void * a, void * b );
 
-int compare_t_nodes ( const void* a, const void * b )
+int compare_t_nodes ( void * a, void * b )
 {
 	int result;
 //	int A, B;
