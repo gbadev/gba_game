@@ -93,3 +93,20 @@ int tc_getNext()
 	linked_insert ( &head, index, thisTurn, &compare_t_nodes);
 	return index;
 }
+
+void tc_updateTc ()
+{
+	int i = 0;
+	Node * thisNode = head;
+	
+	int start = 16;
+	
+	for ( i = 0; i < 10 && thisNode; ++i )
+	{
+		mysprites[i+100].x = start + i * 16;
+		mysprites[i+100].y = 0;
+		sprites[i+100].attribute2 = findAnimOffset ( thisNode->index );
+		thisNode = thisNode->next;
+	}
+	UpdateSpriteMemory();	
+}

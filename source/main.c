@@ -56,7 +56,8 @@ int main ( void )
 		}
 			
 		if (Pressed(BUTTON_A) && mode == 0)
-		{
+		{	
+			tc_updateTc();
 			curr = tc_getNext();
 			sprite_setPos ( 127, mysprites[curr].x, mysprites[curr].y );
 			bg_drawMoveableArea(curr, getRange(curr));
