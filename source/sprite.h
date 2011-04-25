@@ -161,6 +161,7 @@ void sprite_init()
 		mysprites[i].facingRight = 0;
 		mysprites[i].nextTurn = 0;
 		mysprites[i].priority = 1;
+		mysprites[i].hp=99;
 		//sprites[n].attribute0 = -160; //using copy of OAM
         //sprites[n].attribute1 = -160;
 		//sprites[n].attribute2 = n*8;

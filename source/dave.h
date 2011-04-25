@@ -480,9 +480,12 @@ typedef struct tagSpriteHanlder
 	short facingUp;
 	short facingDown;
 	
+	
 	int priority;
 	
 	int nextTurn;
+	
+	short hp;
 
 }SpriteHanlder;
 SpriteHanlder mysprites[128];

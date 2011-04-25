@@ -4,6 +4,7 @@ void ui_draw();
 void ui_updateStatus()
 {
 	int i;
+	//updating sprite status frames on left side
 	for ( i = 110; i < 114; i++)
 	{
 		mysprites[i].x=0;
@@ -11,6 +12,9 @@ void ui_updateStatus()
 		//sprites[i].attribute2 = findAnimOffset(i-110);
 		sprite_setImage(i, findAnimOffset ( i-110));
 	}
+	
+	//printing hp
+
 }
 
 void ui_draw()
