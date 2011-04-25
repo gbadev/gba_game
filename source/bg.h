@@ -145,7 +145,7 @@ void bg_load(int *x, int *y, const u16 * currPal, const u16 * currMap, const u16
 		}
 	
 	//TODO make this passable!
-	myBg.numStartZombies = 2;
+	myBg.numStartZombies = 10;
 	
 	myBg.x = -16;
 	REG_BG3HOFS = -16;
@@ -361,6 +361,21 @@ int bg_tileOccupied ( int x, int y )
 	int i;
 	int result = 0;
 	for ( i = 0; i < 100 && !result; i++ )
+	{//only check possible character sprites
+		if ( x == mysprites[i].x && y == mysprites[i].y )
+			result = 1;
+	}
+	return result;
+}
+
+int bg_tileOccupiedByPlayer ( int x, int y )
+//I:	the x and y coordinates of the upper left corner of a tile
+//O:	none		
+//R:	true if the tile is currently occupied by a player or zombie, false otherwise
+{
+	int i;
+	int result = 0;
+	for ( i = 0; i < 4 && !result; i++ )
 	{//only check possible character sprites
 		if ( x == mysprites[i].x && y == mysprites[i].y )
 			result = 1;

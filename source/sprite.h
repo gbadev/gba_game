@@ -36,6 +36,7 @@ void sprite_moveRight(int);
 //needs to be moved to sprite.h
 void sprite_move ( int i );
 void sprite_zombie_move ( int curr );
+int sprite_zombie_attack(int curr);
 
 int PathFinder ( Stack * sptr, int this_x, int this_y, int end_x, int end_y,int * pathfound);
 void sprite_findPath(int i, int start_x, int start_y, int end_x, int end_y );
@@ -198,15 +199,64 @@ void sprite_init()
 	sprite_setImage(5, SPIT_START);
 	mysprites[5].nextTurn = ZOMBIE_S;
 	
+	mysprites[6].isZomb = 1;
+	//sprites[4].attribute2 = 8 * ZOMB_START;
+	sprite_setImage(6, ZOMB_START);
+	mysprites[6].nextTurn = ZOMBIE_S;
+	
+	mysprites[7].isSpit = 1;
+	//sprites[5].attribute2 = 8 * SPIT_START;
+	sprite_setImage(7, SPIT_START);
+	mysprites[7].nextTurn = ZOMBIE_S;
+	
+	mysprites[8].isZomb = 1;
+	//sprites[4].attribute2 = 8 * ZOMB_START;
+	sprite_setImage(8, ZOMB_START);
+	mysprites[8].nextTurn = ZOMBIE_S;
+	
+	mysprites[9].isSpit = 1;
+	//sprites[5].attribute2 = 8 * SPIT_START;
+	sprite_setImage(9, SPIT_START);
+	mysprites[9].nextTurn = ZOMBIE_S;
+	
+	mysprites[10].isZomb = 1;
+	//sprites[4].attribute2 = 8 * ZOMB_START;
+	sprite_setImage(10, ZOMB_START);
+	mysprites[10].nextTurn = ZOMBIE_S;
+	
+	mysprites[11].isSpit = 1;
+	//sprites[5].attribute2 = 8 * SPIT_START;
+	sprite_setImage(11, SPIT_START);
+	mysprites[11].nextTurn = ZOMBIE_S;
+	
+	mysprites[12].isZomb = 1;
+	//sprites[4].attribute2 = 8 * ZOMB_START;
+	sprite_setImage(12, ZOMB_START);
+	mysprites[12].nextTurn = ZOMBIE_S;
+	
+	mysprites[13].isSpit = 1;
+	//sprites[5].attribute2 = 8 * SPIT_START;
+	sprite_setImage(13, SPIT_START);
+	mysprites[13].nextTurn = ZOMBIE_S;
+	
 	//chars init
     sprite_setTilePos ( 0, 0, 0 );
 	sprite_setTilePos ( 1, 2, 0 );
 	sprite_setTilePos ( 2, 0, 2 );
 	sprite_setTilePos ( 3, 0, 8 );
+	
 	sprite_setTilePos ( 4, 8, 0 );
 	sprite_setTilePos ( 5, 8, 8 );
+	sprite_setTilePos ( 6, 8, 8 );
+	sprite_setTilePos ( 7, 9, 9 );
+	sprite_setTilePos ( 8, 9, 10 );
+	sprite_setTilePos ( 9, 9, 11 );
+	sprite_setTilePos ( 10, 9, 12 );
+	sprite_setTilePos ( 11, 9, 13 );
+	sprite_setTilePos ( 12, 9, 14 );
+	sprite_setTilePos ( 13, 9, 15 );
 	
-
+	
 	//sprites[127].attribute2 = 107*8; //init cursor;
 	sprite_setImage(127, 107);
 	
@@ -668,6 +718,8 @@ int findGotHitOffset ( int attk )
 
 void sprite_zombie_move ( int curr )
 {
+	int hasAttacked = sprite_zombie_attack( curr );
+	
 	int x, y, k;
 	int end_x = mysprites[curr].x, end_y = mysprites[curr].y;
 	float minDist = 99999;
@@ -675,36 +727,67 @@ void sprite_zombie_move ( int curr )
 	float crap;
 	
 	bg_drawMoveableArea(curr, getRange(curr));
-	
-	for ( y = 0; y < myBg.mth; y++)
-		for ( x = 0; x < myBg.mtw; x++)
-			if ( myBg.select[y*myBg.mtw+x] == fontMap[64] )//check all moveable squares
-				for ( k = 0; k < 4; k++)
-				{
-					float thisDist = 999999;
-					/*if ( j > (mysprites[k].x/16) )
-						a = j - mysprites[k].x/16;
-					else
-						a = mysprites[k].x/16 - j;
-					
-					if ( i > (mysprites[k].y/16) )
-						b = i - mysprites[k].y/16;
-					else
-						b = mysprites[k].y/16 - i;*/
-					foo = y - mysprites[k].y/8;
-					bar = x - mysprites[k].x/8;
-					
-					crap = (foo*foo + bar*bar);
-					
-					thisDist = sqrtf(crap);
-					
-					if ( thisDist <= minDist )
+	if ( !hasAttacked)
+	{
+		for ( y = 0; y < myBg.mth; y+=2)
+			for ( x = 0; x < myBg.mtw; x+=2)
+				if ( myBg.select[y*myBg.mtw+x] == fontMap[64] )//check all moveable squares
+					for ( k = 0; k < 4; k++)
 					{
-						minDist = thisDist;
-						end_x = x*8;
-						end_y = y*8;
+						float thisDist = 999999;
+			
+						foo = y - mysprites[k].y/8;
+						bar = x - mysprites[k].x/8;
+					
+						crap = (foo*foo + bar*bar);
+					
+						thisDist = sqrtf(crap);
+					
+						if ( thisDist <= minDist )
+						{
+							minDist = thisDist;
+							end_x = x*8;
+							end_y = y*8;
+						}
 					}
-				}
-	sprite_findPath ( curr, mysprites[curr].x, mysprites[curr].y, end_x, end_y );
-	
+		sprite_findPath ( curr, mysprites[curr].x, mysprites[curr].y, end_x, end_y );
+		sprite_zombie_attack( curr );
+	}
 }
+
+int sprite_zombie_attack(int curr)
+{
+	int rval = 0;
+	int xi = mysprites[curr].x/8;
+	int yi = mysprites[curr].y/8;
+	
+	bg_drawAttackableSquares(curr );
+	
+	if ( isValidMapPosition ( xi+2, yi) && myBg.select[(yi)*myBg.mtw+(xi+2)] == fontMap[64]
+		&&	bg_tileOccupiedByPlayer ( (xi+2)*8, yi*8))
+	{
+		sprite_Attack( curr, (xi+2)*8, yi*8);
+		rval = 1;
+	}
+	else if ( isValidMapPosition ( xi-2, yi) && myBg.select[(yi)*myBg.mtw+(xi-2)] == fontMap[64]
+		&&	bg_tileOccupiedByPlayer ( (xi-2)*8, yi*8))
+	{
+		sprite_Attack( curr, (xi-2)*8, yi*8);
+		rval = 1;
+	}
+	else if ( isValidMapPosition ( xi, yi+2) && myBg.select[(yi+2)*myBg.mtw+(xi)] == fontMap[64]
+		&&	bg_tileOccupiedByPlayer ( (xi)*8, (yi+2)*8))
+	{
+		sprite_Attack( curr, (xi)*8, (yi+2)*8);
+		rval = 1;
+	}
+	else if ( isValidMapPosition ( xi, yi-2) && myBg.select[(yi-2)*myBg.mtw+(xi)] == fontMap[64]
+		&&	bg_tileOccupiedByPlayer ( (xi)*8, (yi-2)*8))
+	{
+		sprite_Attack( curr, (xi)*8, (yi-2)*8);
+		rval = 1;
+	}
+	return rval;
+}
+	
+		
