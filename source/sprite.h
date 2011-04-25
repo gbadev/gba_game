@@ -670,7 +670,7 @@ void sprite_Attack(int index, int x, int y)
 		sprite_updateAll();
 		bg_clearMoveable();
 	
-	}
+	} 
 }
 
 int findSpriteIndex(int x, int y)

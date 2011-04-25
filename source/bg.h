@@ -374,7 +374,7 @@ int bg_tileOccupiedByPlayer ( int x, int y )
 //R:	true if the tile is currently occupied by a player or zombie, false otherwise
 {
 	int i;
-	int result = 0;
+	int result = 0; 
 	for ( i = 0; i < 4 && !result; i++ )
 	{//only check possible character sprites
 		if ( x == mysprites[i].x && y == mysprites[i].y )
