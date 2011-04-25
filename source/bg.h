@@ -67,11 +67,14 @@ void bg_init()
     //We are using a 256x256 Map which is placed in ScreenBaseBlock 31
     //REG_BG3CNT = BG_COLOR256 | TEXTBG_SIZE_256x256 | (31 << SCREEN_SHIFT);
 	//REG_BG2CNT = BG_COLOR256 | TEXTBG_SIZE_256x256 | (30 << SCREEN_SHIFT) | ( 1 << CHAR_SHIFT);
-	REG_BG3CNT = BG_COLOR256 | TEXTBG_SIZE_512x512 | (28 << SCREEN_SHIFT);
-	REG_BG2CNT = BG_COLOR256 | TEXTBG_SIZE_512x512 | (24 << SCREEN_SHIFT) | ( 1 << CHAR_SHIFT );
-	REG_BG1CNT = BG_COLOR256 | TEXTBG_SIZE_256x256 | (23 << SCREEN_SHIFT) | ( 1 << CHAR_SHIFT );
-    //set video mode 0 with background 0
-    SetMode(0|BG3_ENABLE|BG2_ENABLE|BG1_ENABLE|OBJ_ENABLE|OBJ_MAP_1D);
+	 //set video mode 0 with background 0
+	SetMode(0|BG3_ENABLE|BG2_ENABLE|BG1_ENABLE|OBJ_ENABLE|OBJ_MAP_1D);
+	
+	REG_BG3CNT = BG_COLOR256 | TEXTBG_SIZE_512x512 | (28 << SCREEN_SHIFT)|3;
+	REG_BG2CNT = BG_COLOR256 | TEXTBG_SIZE_512x512 | (24 << SCREEN_SHIFT) | ( 1 << CHAR_SHIFT )|2;
+	REG_BG1CNT = BG_COLOR256 | TEXTBG_SIZE_256x256 | (23 << SCREEN_SHIFT) | ( 1 << CHAR_SHIFT )|1 ;
+   
+    
 	
 	myBg.x = 0;
 	myBg.y = 0;
@@ -140,13 +143,6 @@ void bg_load(int *x, int *y, const u16 * currPal, const u16 * currMap, const u16
 		{
 			bg_loadTile(j,i, bg3map, myBg.map);
 		}
-
-	for (i = 0; i<2; i++)
-		for ( j = 0; j < 32; ++j)
-			bg1map[i * 32 + j ] = fontMap[1];
-	for (i = 2; i<32; i++)
-		for ( j = 0; j < 2; ++j)
-			bg1map[i * 32 + j ] = fontMap[1];
 	
 	//TODO make this passable!
 	myBg.numStartZombies = 2;
@@ -157,6 +153,8 @@ void bg_load(int *x, int *y, const u16 * currPal, const u16 * currMap, const u16
     myBg.y = -16;
 	REG_BG3VOFS = -16;
 	REG_BG2VOFS = -16 ;	
+	
+	ui_draw();
 	
 	bg_clearMoveable();
 }
@@ -233,6 +231,8 @@ void bg_scroll()
 	REG_BG2VOFS = myBg.y ;
     REG_BG3HOFS = myBg.x ;
 	REG_BG2HOFS = myBg.x ;
+	
+	ui_draw();
 	
 }
 

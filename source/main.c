@@ -63,9 +63,19 @@ int main ( void )
 			ui_updateStatus();
 			
 			curr = tc_getNext();
-			sprite_setPos ( 127, mysprites[curr].x, mysprites[curr].y );
-			bg_drawMoveableArea(curr, getRange(curr));
-			mode = 1;
+			if ( curr < 4 )
+			{
+				sprite_setPos ( 127, mysprites[curr].x, mysprites[curr].y );
+				bg_drawMoveableArea(curr, getRange(curr));
+				mode = 1;
+			}
+			else
+			{
+				mode=1;
+				sprite_zombie_move ( curr );
+				mode=0;
+			}
+				
 		}
 		else if (Pressed(BUTTON_B) && mode == 1)
 		{//move char to cursor
@@ -82,7 +92,10 @@ int main ( void )
 			//draw attackable squares
 			int result = bg_drawAttackableSquares(curr);
 			if ( result )
+			{
+				sprite_setPos ( 127, mysprites[curr].x, mysprites[curr].y );
 				mode = 2;
+			}
 			else
 				mode = 0;
 			tc_updateTc();

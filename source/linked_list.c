@@ -2,7 +2,9 @@
 #include <stdlib.h>
 #include "linked_list.h"
 
-void linked_insert(Node **nodePtr, int index, int value, int (*compare)(const void *, const void *))
+int compare_ints ( int a, int  b );
+
+void linked_insert(Node **nodePtr, int index, int value)
 {
 	Node *newNode;
 	Node *previous;
@@ -22,7 +24,7 @@ void linked_insert(Node **nodePtr, int index, int value, int (*compare)(const vo
 		/*Traverses list until end or larger data is found
 		  If order doesn't matter, only append to the end
 		  by removing second condition*/
-		while(current != NULL && (*compare)(value, current->val) >= 0) /* value > current -> data */
+		while(current != NULL && compare_ints(value, current->val) >= 0) /* value > current -> data */
 		{
 			previous = current;
 			current = current -> next;
@@ -45,14 +47,14 @@ void linked_insert(Node **nodePtr, int index, int value, int (*compare)(const vo
 	}
 }
 
-int linked_delete(Node **nodePtr, int value, int (*compare)(const void *, const void *))
+int linked_delete(Node **nodePtr, int value )
 {
 	Node *previous;
 	Node *current;
 	Node *temp;
 
 	/*First node is to be deleted*/
-	if((*compare)(value, (*nodePtr)->val) == 0) /* value == (*nodePtr) -> data) */
+	if(compare_ints(value, (*nodePtr)->val) == 0) /* value == (*nodePtr) -> data) */
 	{
 		temp = *nodePtr; /*retain pointer to memory to be freed*/
 		*nodePtr = (*nodePtr) -> next;
@@ -68,7 +70,7 @@ int linked_delete(Node **nodePtr, int value, int (*compare)(const void *, const 
 		current = (*nodePtr) -> next; /*parens needed to force correct order of ops*/
 
 		/*loop through nodes until the value is found*/
-		while(current != NULL && (*compare)(current -> val, value) != 0) /* current -> data != value */
+		while(current != NULL && compare_ints((current -> val), value) != 0) /* current -> data != value */
 		{
 			previous = current;
 			current = current -> next;
@@ -112,6 +114,22 @@ void linked_print(Node *nodePtr)
 
 		//printf("NULL\n");
 	}
+}
+
+
+int compare_ints ( int  a, int  b )
+{
+	int result;
+//	int A, B;
+//	A = (( t_node * ) a)->val;
+//	B = (( t_node * ) b)->val;
+	if ( a == b )
+		result = 0;
+	else if ( a < b )
+		result = -1;
+	else 
+		result = 1;
+	return result;
 }
 
 

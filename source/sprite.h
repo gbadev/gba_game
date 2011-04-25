@@ -1,6 +1,6 @@
 //sprite.h
 //poop
-//#include "stack.h"
+#include <math.h>
 #include "graphics/sprites/master_pal.h"
 #include "graphics/sprites/animations.h"
 #include "graphics/sprites/dave_tank_sprites.h"
@@ -24,6 +24,8 @@ void sprite_init();
 
 void sprite_setPos( int, int , int  );
 void sprite_setTilePos( int index, int x, int y );
+void sprite_setImage ( int i, int thisImage );
+
 void sprite_draw( int , int , int  );
 void sprite_updateAll();
 void sprite_moveUp(int);
@@ -33,10 +35,14 @@ void sprite_moveRight(int);
 
 //needs to be moved to sprite.h
 void sprite_move ( int i );
+void sprite_zombie_move ( int curr );
 
 int PathFinder ( Stack * sptr, int this_x, int this_y, int end_x, int end_y,int * pathfound);
 void sprite_findPath(int i, int start_x, int start_y, int end_x, int end_y );
 
+int findAnimOffset(int );
+int findSpriteIndex(int x, int y);
+int findGotHitOffset ( int attk );
 
 #define TANK_START 0
 #define ZOMB_START 20
@@ -44,6 +50,8 @@ void sprite_findPath(int i, int start_x, int start_y, int end_x, int end_y );
 #define SPIT_START 54
 #define GREN_START 71
 #define HEAL_START 88
+
+#define BLOOD_START 114
 /*
 	0 dave_tank_sprites - 2560
 	1 dave_zombie_sprites - 2176
@@ -151,44 +159,56 @@ void sprite_init()
 		mysprites[i].facingLeft = 0;
 		mysprites[i].facingRight = 0;
 		mysprites[i].nextTurn = 0;
-		sprites[n].attribute0 = -160; //using copy of OAM
-        sprites[n].attribute1 = -160;
-		sprites[n].attribute2 = n*8;
+		mysprites[i].priority = 1;
+		//sprites[n].attribute0 = -160; //using copy of OAM
+        //sprites[n].attribute1 = -160;
+		//sprites[n].attribute2 = n*8;
+		sprite_setPos(n, -160, -160);
+		sprite_setImage(n, n);
 		
     }
 	
 	mysprites[0].isTank = 1; //init characters
-	sprites[0].attribute2 = 8 * TANK_START;
+	//sprites[0].attribute2 = 8 * TANK_START;
+	sprite_setImage(0, TANK_START);
 	mysprites[0].nextTurn = TANK_S;
+	
 	mysprites[1].isGren = 1;
-	sprites[1].attribute2 = 8 * GREN_START;
+	//sprites[1].attribute2 = 8 * GREN_START;
+	sprite_setImage(1, GREN_START);
 	mysprites[1].nextTurn = GRENADE_S;
+	
 	mysprites[2].isSnip = 1;
-	sprites[2].attribute2 = 8 * SNIP_START;
+	//sprites[2].attribute2 = 8 * SNIP_START;
+	sprite_setImage(2, SNIP_START);
 	mysprites[2].nextTurn = RANGE_S;
+	
 	mysprites[3].isHeal = 1;
-	sprites[3].attribute2 = 8 * HEAL_START;
+	//sprites[3].attribute2 = 8 * HEAL_START;
+	sprite_setImage(3, HEAL_START);
 	mysprites[3].nextTurn = HEAL_S;
+	
 	mysprites[4].isZomb = 1;
-	sprites[4].attribute2 = 8 * ZOMB_START;
+	//sprites[4].attribute2 = 8 * ZOMB_START;
+	sprite_setImage(4, ZOMB_START);
 	mysprites[4].nextTurn = ZOMBIE_S;
+	
 	mysprites[5].isSpit = 1;
-	sprites[5].attribute2 = 8 * SPIT_START;
+	//sprites[5].attribute2 = 8 * SPIT_START;
+	sprite_setImage(5, SPIT_START);
 	mysprites[5].nextTurn = ZOMBIE_S;
 	
-	//TODO : remove this crap
+	//chars init
     sprite_setTilePos ( 0, 0, 0 );
 	sprite_setTilePos ( 1, 2, 0 );
 	sprite_setTilePos ( 2, 0, 2 );
 	sprite_setTilePos ( 3, 0, 8 );
 	sprite_setTilePos ( 4, 8, 0 );
 	sprite_setTilePos ( 5, 8, 8 );
-	/*
-    sprites[0].attribute2 = 0;
-	sprites[1].attribute2 = 8;
-	sprites[2].attribute2 = 16;*/
-	sprites[127].attribute2 = 107*8; //init cursor;
 	
+
+	//sprites[127].attribute2 = 107*8; //init cursor;
+	sprite_setImage(127, 107);
 	
     UpdateSpriteMemory();
 }
@@ -211,6 +231,13 @@ void sprite_setTilePos( int index, int x, int y )
 {
 	mysprites[index].x = x * 16;
 	mysprites[index].y = y * 16;
+}
+
+void sprite_setImage ( int i, int thisImageIndex )
+{
+	
+	sprites[i].attribute2 = (thisImageIndex * 8) | PRIORITY(mysprites[i].priority);
+	UpdateSpriteMemory();
 }
 
 void sprite_draw( int index, int x, int y )
@@ -295,34 +322,16 @@ void sprite_move ( int i )
 	}
 
 }
-int findAnimOffset ( int i )
-{
-	int offset = 0;
-	if ( mysprites[i].isTank )
-		offset = TANK_START;
-	else if ( mysprites[i].isGren )
-		offset = GREN_START;
-	else if ( mysprites[i].isSnip )
-		offset = SNIP_START;
-	else if ( mysprites[i].isHeal )
-		offset = HEAL_START;
-	else if( mysprites[i].isZomb )
-		offset = ZOMB_START;
-	else if ( mysprites[i].isSpit )
-		offset = SPIT_START;
-	return offset * 8;
-}
+
 //whoami(sprite) + direction + slide number
 void sprite_moveDown(int i)
+//I:	a sprite index
+//O:	sprite is moved one 16x16 tile down, with animation
+//R:	none
 {
 	volatile int n;
 	int j;
 	int offset = findAnimOffset(i);
-	
-	//if ( !mysprites[i].facingDown )
-	//{	//flip that bitch!
-	//	sprites[i].attribute1 = SIZE_16 | (myBg.x - mysprites[i].x) ;
-	//}
 	
 	mysprites[i].facingDown = 1;
 	mysprites[i].facingUp = 0;
@@ -333,25 +342,24 @@ void sprite_moveDown(int i)
 	{
 		mysprites[i].y++;
 		if ( i != 127 )
-			sprites[i].attribute2 =  (offset + (j%3)*8);
+			//sprites[i].attribute2 =  (offset + (j%3)*8);
+			sprite_setImage(i, (offset+(j%3)));
 		sprite_updateAll();
 		for ( n = 0; n < 10000; n++);
 	}
 }
 
 void sprite_moveUp(int i)
+//I:	a sprite index
+//O:	sprite is moved one 16x16 tile up, with animation
+//R:	none
 {
 	volatile int n;
 	int j;
 	int offset = findAnimOffset(i);
 	
-	offset += 3 * 8;
-	
-	//if ( !mysprites[i].facingUp )
-	//{	//flip that bitch!
-	//	sprites[i].attribute1 = SIZE_16 | (myBg.x - mysprites[i].x) ;
-	//}
-	
+	offset += 3;
+
 	mysprites[i].facingDown = 0;
 	mysprites[i].facingUp = 1;
 	mysprites[i].facingLeft = 0;
@@ -361,24 +369,23 @@ void sprite_moveUp(int i)
 	{
 		mysprites[i].y--;
 		if ( i != 127 )
-			sprites[i].attribute2 =  (offset + (j%3)*8);
+			//sprites[i].attribute2 =  (offset + (j%3)*8);
+			sprite_setImage(i, (offset+(j%3)));
 		sprite_updateAll();
 		for ( n = 0; n < 10000; n++);
 	}
 }
 
 void sprite_moveRight(int i)
+//I:	a sprite index
+//O:	sprite is moved one 16x16 tile right, with animation
+//R:	none
 {
 	volatile int n;
 	int j;
 	int offset = findAnimOffset(i);
 	
-	offset += 6 * 8;
-
-	//if ( !mysprites[i].facingRight )
-	//{	//flip that bitch!
-	//	sprites[i].attribute1 = SIZE_16 | (myBg.x - mysprites[i].x) ;
-	//}
+	offset += 6;
 	
 	mysprites[i].facingDown = 0;
 	mysprites[i].facingUp = 0;
@@ -390,25 +397,25 @@ void sprite_moveRight(int i)
 	{
 		mysprites[i].x++;
 		//flip that bitch!
-		sprites[i].attribute1 = SIZE_16 | (myBg.x - mysprites[i].x) | HORIZONTAL_FLIP;
+		sprites[i].attribute1 = sprites[i].attribute1 | HORIZONTAL_FLIP;
 		if ( i != 127 )
-			sprites[i].attribute2 = (offset + (j%4)*8);
+			//sprites[i].attribute2 = (offset + (j%4)*8);
+			sprite_setImage(i, (offset+(j%4)));
 		sprite_updateAll();
 		for ( n = 0; n < 10000; n++);
 	}
 }
 void sprite_moveLeft(int i)
+//I:	a sprite index
+//O:	sprite is moved one 16x16 tile left, with animation
+//R:	none
 {
 	volatile int n;
 	int j;
 	int offset = findAnimOffset(i);
 	
-	offset += 6 * 8;
-	
-	//if ( !mysprites[i].facingLeft )
-	//{	//flip that bitch!
-	//	sprites[i].attribute1 = SIZE_16 | (myBg.x - mysprites[i].x)| HORIZONTAL_FLIP;
-	//}
+	offset += 6;
+
 	
 	mysprites[i].facingDown = 0;
 	mysprites[i].facingUp = 0;
@@ -419,16 +426,18 @@ void sprite_moveLeft(int i)
 	{
 		mysprites[i].x--;
 		if ( i != 127 )
-			sprites[i].attribute2 = (offset + (j%4)*8);
+			//sprites[i].attribute2 = (offset + (j%4)*8);
+			sprite_setImage(i, (offset+(j%4)));
 		sprite_updateAll();
 		for ( n = 0; n < 10000; n++);
 	}
 }
 
-
-
-
 void sprite_findPath(int i, int start_x, int start_y, int end_x, int end_y )
+//I:	a sprite index, the x,y coords for start pos and end pos
+//O:	a valid min length path is generated from start to end
+//		sprite with index i is move along this path from start to end
+//R:	none
 {
 	//convert to movesleft tile indexes
 	start_x/=16;
@@ -471,11 +480,14 @@ void sprite_findPath(int i, int start_x, int start_y, int end_x, int end_y )
 	
 	mysprites[127].x = -160;
 	mysprites[127].y = -160;
-	sprite_updateAll();
+	bg_clearMoveable();
 
 }
 
 int PathFinder ( Stack* sptr, int this_x, int this_y, int end_x, int end_y, int * pathfound )
+//I:	a ptr to a stack, the x,y coords for the current and end pos, an integer flag used to end recursion
+//O:		
+//R:
 {
 	if ( !(*pathfound) )
 	{
@@ -526,9 +538,15 @@ int PathFinder ( Stack* sptr, int this_x, int this_y, int end_x, int end_y, int 
 	return 0;
 }
 void sprite_Attack(int index, int x, int y)
+//I:	a sprite index, the x,y coordinates of the tile the sprite is attacking
+//O:	attack animations are played for attacker and attacked sprites and blood spurts
+//		attacked char's hp reduced
+//		if attacked char's hp <= 0 character dies
+//R:	none
 {
 	if (!(x == mysprites[index].x && y == mysprites[index].y ))
 	{
+		//find animation offset
 		int offset = findAnimOffset(index);
 		if ( mysprites[index].x > x )
 		{//attacking left
@@ -536,7 +554,7 @@ void sprite_Attack(int index, int x, int y)
 			mysprites[index].facingRight = 0;
 			mysprites[index].facingUp = 0;
 			mysprites[index].facingDown = 0;
-			offset += 10*8;
+			offset += 10;
 		}
 		else if ( mysprites[index].x < x )
 		{//attacking right
@@ -544,7 +562,7 @@ void sprite_Attack(int index, int x, int y)
 			mysprites[index].facingRight = 1;
 			mysprites[index].facingUp = 0;
 			mysprites[index].facingDown = 0;
-			offset += 10* 8;
+			offset += 10;
 		}
 		else if ( mysprites[index].y > y )
 		{//attacking up
@@ -552,7 +570,7 @@ void sprite_Attack(int index, int x, int y)
 			mysprites[index].facingRight = 0;
 			mysprites[index].facingUp = 1;
 			mysprites[index].facingDown = 0;
-			offset += 14* 8;
+			offset += 14;
 		}
 		else if ( mysprites[index].y < y )
 		{//attacking down
@@ -560,23 +578,133 @@ void sprite_Attack(int index, int x, int y)
 			mysprites[index].facingRight = 0;
 			mysprites[index].facingUp = 0;
 			mysprites[index].facingDown = 1;
-			offset += 12 * 8;
+			offset += 12;
 		}
 		int j;
+		
+		//find index of sprite getting attacked
+		int attk = findSpriteIndex(x,y);
+		u16 prevAttackerFrame = sprites[index].attribute2;
+		u16 prevAttackedFrame = sprites[attk].attribute2;
+		
+		//play attack animations
 		for ( j = 0; j < 16; j++)
 		{
-			sprites[index].attribute2 =  (offset + (j%2)*8);
+			//character attacking
+			if ( j < 12 )
+				//sprites[index].attribute2 =  (offset + (j%2)*8);
+				sprite_setImage(index, (offset + ( j % 2) ));
+			//attacked character got hit
+			if ( j == 3 )
+			{
+				//sprites[attk].attribute2 = findGotHitOffset ( attk );
+				sprite_setImage(attk, findGotHitOffset(attk));
+				sprite_setPos(126, mysprites[attk].x, mysprites[attk].y);
+				//sprites[126].attribute2 = BLOOD_START * 8;
+				sprite_setImage(126, BLOOD_START);
+			}
+			//spurt blood
+			if ( j > 3 )
+				//sprites[126].attribute2 = BLOOD_START * 8 + ( j % 3 );
+				sprite_setImage(126, BLOOD_START + ( j%3 ));
+				
 			sprite_updateAll();
 			volatile int n;
 			for ( n = 0; n < 10000; n++);
 		}
-		mysprites[127].x = -160;
-		mysprites[127].y = -160;
+		sprites[index].attribute2 = prevAttackerFrame;
+		sprites[attk].attribute2 = prevAttackedFrame;
+		sprite_setPos(126, -160,-160);
+		sprite_setPos(127, -160,-160);
+
 		sprite_updateAll();
 		bg_clearMoveable();
 	
 	}
 }
-	
 
+int findSpriteIndex(int x, int y)
+//I:	x and y coords
+//O:	checks to see if tile at x,y is occupied
+//R:	1 if occupied, 0 otherwise
+{
+	int rval = -1;
+	int i;
+	for ( i = 0; i < 100 && rval == -1 ; i++)
+		if ( x == mysprites[i].x && y == mysprites[i].y )
+			rval = i;
+	return rval;
+}
+
+int findAnimOffset ( int i )
+//I:	a sprite index
+//O:	offset to reach start frame of given sprite is calculated
+//R:	offset to access start frame for given char
+{
+	int offset = 0;
+	if ( mysprites[i].isTank )
+		offset = TANK_START;
+	else if ( mysprites[i].isGren )
+		offset = GREN_START;
+	else if ( mysprites[i].isSnip )
+		offset = SNIP_START;
+	else if ( mysprites[i].isHeal )
+		offset = HEAL_START;
+	else if( mysprites[i].isZomb )
+		offset = ZOMB_START;
+	else if ( mysprites[i].isSpit )
+		offset = SPIT_START;
+	return offset;
+}
+
+int findGotHitOffset ( int attk )
+//I:	a sprite index
+//O:	none
+//R:	offset for attacked character 
+{
+	return findAnimOffset(attk) + 16;	
+}
 //poop
+
+void sprite_zombie_move ( int curr )
+{
+	int x, y, k;
+	int end_x = mysprites[curr].x, end_y = mysprites[curr].y;
+	float minDist = 99999;
+	int foo, bar;
+	float crap;
+	
+	bg_drawMoveableArea(curr, getRange(curr));
+	
+	for ( y = 0; y < myBg.mth; y++)
+		for ( x = 0; x < myBg.mtw; x++)
+			if ( myBg.select[y*myBg.mtw+x] == fontMap[64] )//check all moveable squares
+				for ( k = 0; k < 4; k++)
+				{
+					float thisDist = 999999;
+					/*if ( j > (mysprites[k].x/16) )
+						a = j - mysprites[k].x/16;
+					else
+						a = mysprites[k].x/16 - j;
+					
+					if ( i > (mysprites[k].y/16) )
+						b = i - mysprites[k].y/16;
+					else
+						b = mysprites[k].y/16 - i;*/
+					foo = y - mysprites[k].y/8;
+					bar = x - mysprites[k].x/8;
+					
+					crap = (foo*foo + bar*bar);
+					
+					thisDist = sqrtf(crap);
+					
+					if ( thisDist <= minDist )
+					{
+						minDist = thisDist;
+						end_x = x*8;
+						end_y = y*8;
+					}
+				}
+	sprite_findPath ( curr, mysprites[curr].x, mysprites[curr].y, end_x, end_y );
+	
+}

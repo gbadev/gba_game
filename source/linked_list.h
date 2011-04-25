@@ -7,8 +7,8 @@ typedef struct node{
 	struct node *next;
 } Node;
 
-void linked_insert(Node **nodePtr, int index, int value, int (*compare)(const void *, const void *));
-int linked_delete(Node **nodePtr, int value, int (*compare)(const void *, const void *));
+void linked_insert(Node **nodePtr, int index, int value);
+int linked_delete(Node **nodePtr, int value);
 int linked_isEmpty(Node *nodePtr);
 void linked_print(Node *nodePtr);
 

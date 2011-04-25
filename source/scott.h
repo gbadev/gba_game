@@ -1,9 +1,9 @@
 //speed
-#define ZOMBIE_S 6
+#define ZOMBIE_S 2
 #define HEAL_S 5
-#define RANGE_S 4
-#define TANK_S 3
-#define GRENADE_S 2
+#define RANGE_S 3
+#define TANK_S 4
+#define GRENADE_S 4
 
 //range
 #define ZOMBIE_M 8

@@ -480,6 +480,8 @@ typedef struct tagSpriteHanlder
 	short facingUp;
 	short facingDown;
 	
+	int priority;
+	
 	int nextTurn;
 
 }SpriteHanlder;
@@ -524,3 +526,6 @@ void UpdateSpriteMemory(void)
     DMAFastCopy((void*)sprites, (void*)SpriteMem, 512, DMA_16NOW);
 }
 #endif
+
+
+
