@@ -19,6 +19,8 @@
 #include "graphics/sprites/sean_grenadier.c"
 #include "graphics/sprites/thomas_all_chars.c"
 
+extern int getRange(int index);
+
 void sprite_init();
 
 

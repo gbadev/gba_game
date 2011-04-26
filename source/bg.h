@@ -1,5 +1,9 @@
 //bg.h
 #define u16 unsigned short
+
+extern void sprite_updateAll();
+extern void ui_draw();
+
 typedef struct tagBgHandler
 {
 	int x;	//srolling x registers
