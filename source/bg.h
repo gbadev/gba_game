@@ -43,6 +43,7 @@ void bg_load(int *x, int *y, const u16 * currPal, const u16 * currMap, const u16
 void bg_loadTile(int , int, u16 *, u16 *);
 //scrolling
 void bg_scroll();
+void bg_centerOver( int curr );
 
 //moveableArea
 void bg_drawMoveableArea ( int, int moves);
@@ -233,7 +234,58 @@ void bg_scroll()
 	REG_BG2HOFS = myBg.x ;
 	
 	ui_draw();
+}
 	
+void bg_centerOver( int curr )
+{
+	int start_x = myBg.x;
+	int start_y = myBg.y;
+	
+	int end_x = mysprites[curr].x - 120;
+	int end_y = mysprites[curr].y - 80;
+	
+	if ( end_x < -16)
+		end_x = -16;
+	if ( end_y < -16)
+		end_y = -16;
+	
+	
+	
+	while (( start_x != end_x) || (start_y != end_y) )
+	{
+		int dx = end_x-start_x;
+		int dy = end_y-start_y;
+		if ( dx > 0 )
+		{
+			myBg.x++;
+			start_x++;
+		}
+		else if ( dx < 0 )
+		{
+			myBg.x--;
+			start_x--;
+		}
+		if ( dy > 0 )
+		{
+			myBg.y++;
+			start_y++;
+		}
+		else if ( dy < 0 )
+		{
+			myBg.y--;
+			start_y--;
+		}
+	
+		REG_BG3VOFS = myBg.y ;
+		REG_BG2VOFS = myBg.y ;
+		REG_BG3HOFS = myBg.x ;
+		REG_BG2HOFS = myBg.x ;
+		sprite_updateAll();
+		volatile int n;
+		for ( n = 0; n < 10000; n++);
+	}
+
+		
 }
 
 int isValidMapPosition ( int x, int y)
@@ -252,7 +304,7 @@ void bg_drawMoveableArea ( int i, int moves)
 //O:	map for characters moveable area is created, bg showing moveable area is displayed over base map
 //R:	none
 {							 //x tile index    y tile index
-	
+	bg_centerOver(i);
 	int j, max = myBg.numtiles/4;
 	for ( j = 0; j  < max; ++j )
 	{
@@ -436,4 +488,3 @@ int bg_drawAttackableSquares(int index)
 	
 	return rval;
 }
-	

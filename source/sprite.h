@@ -334,7 +334,7 @@ void sprite_move ( int i )
 //TODO:	make function work via single cursor input...need to implement findpath function
 //R:
 {
-	
+	bg_centerOver(i);
 	int x = mysprites[127].x/8;
 	int y = mysprites[127].y/8;
 	sprite_updateAll();
@@ -490,6 +490,7 @@ void sprite_findPath(int i, int start_x, int start_y, int end_x, int end_y )
 //		sprite with index i is move along this path from start to end
 //R:	none
 {
+	bg_centerOver( i );
 	//convert to movesleft tile indexes
 	start_x/=16;
 	start_y/=16;
@@ -595,6 +596,7 @@ void sprite_Attack(int index, int x, int y)
 //		if attacked char's hp <= 0 character dies
 //R:	none
 {
+	bg_centerOver( index );
 	if (!(x == mysprites[index].x && y == mysprites[index].y ))
 	{
 		//find animation offset
@@ -719,7 +721,9 @@ int findGotHitOffset ( int attk )
 
 void sprite_zombie_move ( int curr )
 {
+	bg_centerOver( curr );
 	int hasAttacked = sprite_zombie_attack( curr );
+	
 	
 	int x, y, k;
 	int end_x = mysprites[curr].x, end_y = mysprites[curr].y;
@@ -754,10 +758,12 @@ void sprite_zombie_move ( int curr )
 		sprite_findPath ( curr, mysprites[curr].x, mysprites[curr].y, end_x, end_y );
 		sprite_zombie_attack( curr );
 	}
+	bg_clearMoveable();
 }
 
 int sprite_zombie_attack(int curr)
 {
+	bg_centerOver( curr );
 	int rval = 0;
 	int xi = mysprites[curr].x/8;
 	int yi = mysprites[curr].y/8;
@@ -788,6 +794,7 @@ int sprite_zombie_attack(int curr)
 		sprite_Attack( curr, (xi)*8, (yi-2)*8);
 		rval = 1;
 	}
+	bg_clearMoveable();
 	return rval;
 }
 	
