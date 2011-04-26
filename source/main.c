@@ -19,6 +19,7 @@
 #include "sprite.h"
 #include "tc.h"
 #include "ui.h"
+#include "tty.h"
 
 
 int main ( void )

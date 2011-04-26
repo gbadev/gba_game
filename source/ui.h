@@ -1,6 +1,8 @@
 void ui_updateStatus();
 void ui_draw();
 
+extern void tty_printChar ( int , int, char );
+
 void ui_updateStatus()
 {
 	int i;
@@ -14,6 +16,8 @@ void ui_updateStatus()
 	}
 	
 	//printing hp
+	tty_printChar(0, 4, '9');
+ 	tty_printChar(1, 4, '9');
 
 }
 
