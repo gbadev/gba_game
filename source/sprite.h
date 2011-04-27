@@ -157,13 +157,13 @@ void sprite_init()
 		mysprites[n].isHeal = 0;
 		mysprites[n].isZomb = 0;
 		mysprites[n].isSpit = 0;
-        mysprites[i].facingDown = 0;
-		mysprites[i].facingUp = 0;
-		mysprites[i].facingLeft = 0;
-		mysprites[i].facingRight = 0;
-		mysprites[i].nextTurn = 0;
-		mysprites[i].priority = 1;
-		mysprites[i].hp=99;
+        mysprites[n].facingDown = 0;
+		mysprites[n].facingUp = 0;
+		mysprites[n].facingLeft = 0;
+		mysprites[n].facingRight = 0;
+		mysprites[n].nextTurn = 0;
+		mysprites[n].priority = 3;
+		mysprites[n].hp=99;
 		//sprites[n].attribute0 = -160; //using copy of OAM
         //sprites[n].attribute1 = -160;
 		//sprites[n].attribute2 = n*8;
@@ -171,6 +171,17 @@ void sprite_init()
 		sprite_setImage(n, n);
 		
     }
+	
+	for ( n = 100; n < 115; n++ )
+	{
+		mysprites[n].priority = 0;
+	}
+	
+	for ( n = 115; n < 128; n++ )
+	{
+		mysprites[n].priority = 2;
+	}
+		
 	
 	mysprites[0].isTank = 1; //init characters
 	//sprites[0].attribute2 = 8 * TANK_START;
