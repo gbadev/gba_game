@@ -4,7 +4,7 @@
 #include "graphics/sprites/master_pal.h"
 #include "graphics/sprites/animations.h"
 #include "graphics/sprites/dave_tank_sprites.h"
-#include "graphics/sprites/dave_zombie_sprites.h"
+#include "graphics/sprites/dave_zombie_Sprites.h"
 #include "graphics/sprites/scott_char.h"
 #include "graphics/sprites/scott_zomb.h"
 #include "graphics/sprites/sean_grenadier.h"
@@ -13,7 +13,7 @@
 #include "graphics/sprites/master_pal.c"
 #include "graphics/sprites/animations.c"
 #include "graphics/sprites/dave_tank_sprites.c"
-#include "graphics/sprites/dave_zombie_sprites.c"
+#include "graphics/sprites/dave_zombie_Sprites.c"
 #include "graphics/sprites/scott_char.c"
 #include "graphics/sprites/scott_zomb.c"
 #include "graphics/sprites/sean_grenadier.c"
@@ -57,7 +57,7 @@ int findGotHitOffset ( int attk );
 #define BLOOD_START 114
 /*
 	0 dave_tank_sprites - 2560
-	1 dave_zombie_sprites - 2176
+	1 dave_zombie_Sprites - 2176
 	2 scott_char - 2176
 	3 scott_zomb - 4352
 	4 sean_grenadier - 2048
@@ -191,12 +191,12 @@ void sprite_init()
 	mysprites[1].isGren = 1;
 	//sprites[1].attribute2 = 8 * GREN_START;
 	sprite_setImage(1, GREN_START);
-	mysprites[1].nextTurn = GRENADE_S;
+	mysprites[1].nextTurn = GREN_S;
 	
 	mysprites[2].isSnip = 1;
 	//sprites[2].attribute2 = 8 * SNIP_START;
 	sprite_setImage(2, SNIP_START);
-	mysprites[2].nextTurn = RANGE_S;
+	mysprites[2].nextTurn = SNIP_S;
 	
 	mysprites[3].isHeal = 1;
 	//sprites[3].attribute2 = 8 * HEAL_START;
@@ -206,52 +206,52 @@ void sprite_init()
 	mysprites[4].isZomb = 1;
 	//sprites[4].attribute2 = 8 * ZOMB_START;
 	sprite_setImage(4, ZOMB_START);
-	mysprites[4].nextTurn = ZOMBIE_S;
+	mysprites[4].nextTurn = ZOMB_S;
 	
 	mysprites[5].isSpit = 1;
 	//sprites[5].attribute2 = 8 * SPIT_START;
 	sprite_setImage(5, SPIT_START);
-	mysprites[5].nextTurn = ZOMBIE_S;
+	mysprites[5].nextTurn = ZOMB_S;
 	
 	mysprites[6].isZomb = 1;
 	//sprites[4].attribute2 = 8 * ZOMB_START;
 	sprite_setImage(6, ZOMB_START);
-	mysprites[6].nextTurn = ZOMBIE_S;
+	mysprites[6].nextTurn = ZOMB_S;
 	
 	mysprites[7].isSpit = 1;
 	//sprites[5].attribute2 = 8 * SPIT_START;
 	sprite_setImage(7, SPIT_START);
-	mysprites[7].nextTurn = ZOMBIE_S;
+	mysprites[7].nextTurn = ZOMB_S;
 	
 	mysprites[8].isZomb = 1;
 	//sprites[4].attribute2 = 8 * ZOMB_START;
 	sprite_setImage(8, ZOMB_START);
-	mysprites[8].nextTurn = ZOMBIE_S;
+	mysprites[8].nextTurn = ZOMB_S;
 	
 	mysprites[9].isSpit = 1;
 	//sprites[5].attribute2 = 8 * SPIT_START;
 	sprite_setImage(9, SPIT_START);
-	mysprites[9].nextTurn = ZOMBIE_S;
+	mysprites[9].nextTurn = ZOMB_S;
 	
 	mysprites[10].isZomb = 1;
 	//sprites[4].attribute2 = 8 * ZOMB_START;
 	sprite_setImage(10, ZOMB_START);
-	mysprites[10].nextTurn = ZOMBIE_S;
+	mysprites[10].nextTurn = ZOMB_S;
 	
 	mysprites[11].isSpit = 1;
 	//sprites[5].attribute2 = 8 * SPIT_START;
 	sprite_setImage(11, SPIT_START);
-	mysprites[11].nextTurn = ZOMBIE_S;
+	mysprites[11].nextTurn = ZOMB_S;
 	
 	mysprites[12].isZomb = 1;
 	//sprites[4].attribute2 = 8 * ZOMB_START;
 	sprite_setImage(12, ZOMB_START);
-	mysprites[12].nextTurn = ZOMBIE_S;
+	mysprites[12].nextTurn = ZOMB_S;
 	
 	mysprites[13].isSpit = 1;
 	//sprites[5].attribute2 = 8 * SPIT_START;
 	sprite_setImage(13, SPIT_START);
-	mysprites[13].nextTurn = ZOMBIE_S;
+	mysprites[13].nextTurn = ZOMB_S;
 	
 	//chars init
     sprite_setTilePos ( 0, 0, 0 );
@@ -259,6 +259,7 @@ void sprite_init()
 	sprite_setTilePos ( 2, 0, 2 );
 	sprite_setTilePos ( 3, 0, 8 );
 	
+	//zombs
 	sprite_setTilePos ( 4, 8, 0 );
 	sprite_setTilePos ( 5, 8, 8 );
 	sprite_setTilePos ( 6, 8, 8 );
@@ -270,8 +271,7 @@ void sprite_init()
 	sprite_setTilePos ( 12, 9, 14 );
 	sprite_setTilePos ( 13, 9, 15 );
 	
-	
-	//sprites[127].attribute2 = 107*8; //init cursor;
+	//init cursor;
 	sprite_setImage(127, 107);
 	
     UpdateSpriteMemory();
@@ -682,6 +682,8 @@ void sprite_Attack(int index, int x, int y)
 		sprites[attk].attribute2 = prevAttackedFrame;
 		sprite_setPos(126, -160,-160);
 		sprite_setPos(127, -160,-160);
+		
+		mysprites[attk].hp -= 5;
 
 		sprite_updateAll();
 		bg_clearMoveable();

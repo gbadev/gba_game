@@ -17,49 +17,13 @@ void tc_init()
 	}
 }
 
-/*#define ZOMBIE_S 6
+/*#define ZOMB_S 6
 #define HEAL_S 5
-#define RANGE_S 4
+#define SNIP_S 4
 #define TANK_S 3
-#define GRENADE_S 2*/
+#define GREN_S 2*/
 
 /* g, t, r, g, heal, z, z, g*/
-int getSpeed ( int index )
-{
-	int rval = 100;
-	if ( mysprites[index].isTank )
-		rval = TANK_S;
-	else if ( mysprites[index].isGren )
-		rval = GRENADE_S;
-	else if ( mysprites[index].isSnip )
-		rval = RANGE_S;
-	else if ( mysprites[index].isHeal )
-		rval = HEAL_S;
-	else if ( mysprites[index].isZomb )
-		rval = ZOMBIE_S;
-	else if ( mysprites[index].isSpit )
-		rval = ZOMBIE_S;
-	return rval;
-}
-
-int getRange(int index)
-{
-	int rval = 1;
-	if ( mysprites[index].isTank )
-		rval = TANK_M;
-	else if ( mysprites[index].isGren )
-		rval = GRENADE_M;
-	else if ( mysprites[index].isSnip )
-		rval = RANGE_M;
-	else if ( mysprites[index].isHeal )
-		rval = HEAL_M;
-	else if ( mysprites[index].isZomb )
-		rval = ZOMBIE_M;
-	else if ( mysprites[index].isSpit )
-		rval = ZOMBIE_M;
-	return rval;
-}
-	
 
 int tc_getNext()
 {

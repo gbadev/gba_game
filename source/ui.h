@@ -17,10 +17,22 @@ void ui_updateStatus()
 	
 	//printing hp
 	//tank
-	char tens = mysprites[110].hp/10 + '0';
-	char ones = mysprites[110].hp%10+ '0';
+	char tens = mysprites[0].hp/10 + '0';
+	char ones = mysprites[0].hp%10+ '0';
 	tty_printChar(0, 4, tens);
  	tty_printChar(1, 4, ones);
+	tens = mysprites[1].hp/10 + '0';
+	ones = mysprites[1].hp%10 + '0';
+	tty_printChar(0, 8, tens);
+ 	tty_printChar(1, 8, ones);
+	tens = mysprites[2].hp/10 + '0';
+	ones = mysprites[2].hp%10+ '0';
+	tty_printChar(0, 12, tens);
+ 	tty_printChar(1, 12, ones);
+	tens = mysprites[3].hp/10 + '0';
+	ones = mysprites[3].hp%10+ '0';
+	tty_printChar(0, 16, tens);
+ 	tty_printChar(1, 16, ones);
 	
 	/*tty_printChar(0, 8, (char)(mysprites[111].hp/10));
  	tty_printChar(1, 8, (char)(mysprites[111].hp%10));
