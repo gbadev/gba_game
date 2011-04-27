@@ -16,8 +16,20 @@ void ui_updateStatus()
 	}
 	
 	//printing hp
-	tty_printChar(0, 4, '9');
- 	tty_printChar(1, 4, '9');
+	//tank
+	char tens = mysprites[110].hp/10 + '0';
+	char ones = mysprites[110].hp%10+ '0';
+	tty_printChar(0, 4, tens);
+ 	tty_printChar(1, 4, ones);
+	
+	/*tty_printChar(0, 8, (char)(mysprites[111].hp/10));
+ 	tty_printChar(1, 8, (char)(mysprites[111].hp%10));
+	
+	tty_printChar(0, 12, (char)(mysprites[112].hp/10));
+ 	tty_printChar(1, 12, (char)(mysprites[112].hp%10));
+	
+	tty_printChar(0, 16, (char)(mysprites[113].hp/10));
+ 	tty_printChar(1, 16, (char)(mysprites[113].hp%10));*/
 
 }
 
