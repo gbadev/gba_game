@@ -20,9 +20,17 @@
 #include "graphics/sprites/thomas_all_chars.c"
 
 extern int getRange(int index);
-
+//init sprite memory
 void sprite_init();
 
+//init player characters
+void sprite_init_tank( int x, int y );
+void sprite_init_gren( int x, int y );
+void sprite_init_snip( int x, int y );
+void sprite_init_heal( int x, int y );
+//init zombies
+void sprite_init_zomb(int index, int x, int y );
+void sprite_init_spit( int index, int x, int y );
 
 void sprite_setPos( int, int , int  );
 void sprite_setTilePos( int index, int x, int y );
@@ -36,7 +44,7 @@ void sprite_moveLeft(int);
 void sprite_moveRight(int);
 
 //needs to be moved to sprite.h
-void sprite_move ( int i );
+void sprite_moveCursor ( int i );
 void sprite_zombie_move ( int curr );
 int sprite_zombie_attack(int curr);
 
@@ -162,11 +170,8 @@ void sprite_init()
 		mysprites[n].facingLeft = 0;
 		mysprites[n].facingRight = 0;
 		mysprites[n].nextTurn = 0;
-		mysprites[n].priority = 3;
+		mysprites[n].priority = 2;
 		mysprites[n].hp=99;
-		//sprites[n].attribute0 = -160; //using copy of OAM
-        //sprites[n].attribute1 = -160;
-		//sprites[n].attribute2 = n*8;
 		sprite_setPos(n, -160, -160);
 		sprite_setImage(n, n);
 		
@@ -179,102 +184,82 @@ void sprite_init()
 	
 	for ( n = 115; n < 128; n++ )
 	{
-		mysprites[n].priority = 2;
+		mysprites[n].priority = 1;
 	}
-		
-	
-	mysprites[0].isTank = 1; //init characters
-	//sprites[0].attribute2 = 8 * TANK_START;
-	sprite_setImage(0, TANK_START);
-	mysprites[0].nextTurn = TANK_S;
-	
-	mysprites[1].isGren = 1;
-	//sprites[1].attribute2 = 8 * GREN_START;
-	sprite_setImage(1, GREN_START);
-	mysprites[1].nextTurn = GREN_S;
-	
-	mysprites[2].isSnip = 1;
-	//sprites[2].attribute2 = 8 * SNIP_START;
-	sprite_setImage(2, SNIP_START);
-	mysprites[2].nextTurn = SNIP_S;
-	
-	mysprites[3].isHeal = 1;
-	//sprites[3].attribute2 = 8 * HEAL_START;
-	sprite_setImage(3, HEAL_START);
-	mysprites[3].nextTurn = HEAL_S;
-	
-	mysprites[4].isZomb = 1;
-	//sprites[4].attribute2 = 8 * ZOMB_START;
-	sprite_setImage(4, ZOMB_START);
-	mysprites[4].nextTurn = ZOMB_S;
-	
-	mysprites[5].isSpit = 1;
-	//sprites[5].attribute2 = 8 * SPIT_START;
-	sprite_setImage(5, SPIT_START);
-	mysprites[5].nextTurn = ZOMB_S;
-	
-	mysprites[6].isZomb = 1;
-	//sprites[4].attribute2 = 8 * ZOMB_START;
-	sprite_setImage(6, ZOMB_START);
-	mysprites[6].nextTurn = ZOMB_S;
-	
-	mysprites[7].isSpit = 1;
-	//sprites[5].attribute2 = 8 * SPIT_START;
-	sprite_setImage(7, SPIT_START);
-	mysprites[7].nextTurn = ZOMB_S;
-	
-	mysprites[8].isZomb = 1;
-	//sprites[4].attribute2 = 8 * ZOMB_START;
-	sprite_setImage(8, ZOMB_START);
-	mysprites[8].nextTurn = ZOMB_S;
-	
-	mysprites[9].isSpit = 1;
-	//sprites[5].attribute2 = 8 * SPIT_START;
-	sprite_setImage(9, SPIT_START);
-	mysprites[9].nextTurn = ZOMB_S;
-	
-	mysprites[10].isZomb = 1;
-	//sprites[4].attribute2 = 8 * ZOMB_START;
-	sprite_setImage(10, ZOMB_START);
-	mysprites[10].nextTurn = ZOMB_S;
-	
-	mysprites[11].isSpit = 1;
-	//sprites[5].attribute2 = 8 * SPIT_START;
-	sprite_setImage(11, SPIT_START);
-	mysprites[11].nextTurn = ZOMB_S;
-	
-	mysprites[12].isZomb = 1;
-	//sprites[4].attribute2 = 8 * ZOMB_START;
-	sprite_setImage(12, ZOMB_START);
-	mysprites[12].nextTurn = ZOMB_S;
-	
-	mysprites[13].isSpit = 1;
-	//sprites[5].attribute2 = 8 * SPIT_START;
-	sprite_setImage(13, SPIT_START);
-	mysprites[13].nextTurn = ZOMB_S;
 	
 	//chars init
-    sprite_setTilePos ( 0, 0, 0 );
-	sprite_setTilePos ( 1, 2, 0 );
-	sprite_setTilePos ( 2, 0, 2 );
-	sprite_setTilePos ( 3, 0, 8 );
+	sprite_init_tank( 0, 0 );
+	sprite_init_gren( 2, 0 );
+	sprite_init_snip( 0, 2 );
+	sprite_init_heal( 0, 8 );
 	
 	//zombs
-	sprite_setTilePos ( 4, 8, 0 );
-	sprite_setTilePos ( 5, 8, 8 );
-	sprite_setTilePos ( 6, 8, 8 );
-	sprite_setTilePos ( 7, 9, 9 );
-	sprite_setTilePos ( 8, 9, 10 );
-	sprite_setTilePos ( 9, 9, 11 );
-	sprite_setTilePos ( 10, 9, 12 );
-	sprite_setTilePos ( 11, 9, 13 );
-	sprite_setTilePos ( 12, 9, 14 );
-	sprite_setTilePos ( 13, 9, 15 );
+	for ( n = 4; n <  14; n+=2 )
+	{
+		sprite_init_zomb ( (n), 8, n/2+3);
+		sprite_init_spit ( (n+1), 9,n/2+3);
+	}
 	
 	//init cursor;
 	sprite_setImage(127, 107);
 	
     UpdateSpriteMemory();
+}
+//init player characters
+void sprite_init_tank( int x, int y )
+{
+	sprite_setTilePos(0, x, y);
+	mysprites[0].isTank = 1;
+    mysprites[0].facingDown = 1;
+	mysprites[0].nextTurn = TANK_S;
+	mysprites[0].hp = TANK_L;
+	sprite_setImage(0, findAnimOffset(0));	
+}
+void sprite_init_gren( int x, int y )
+{
+	sprite_setTilePos(1, x, y);
+	mysprites[1].isGren = 1;
+    mysprites[1].facingDown = 1;
+	mysprites[1].nextTurn = GREN_S;
+	mysprites[1].hp = GREN_L;
+	sprite_setImage(1, findAnimOffset(1));	
+}
+void sprite_init_snip( int x, int y )
+{
+	sprite_setTilePos(2, x, y);
+	mysprites[2].isSnip = 1;
+    mysprites[2].facingDown = 1;
+	mysprites[2].nextTurn = SNIP_S;
+	mysprites[2].hp = SNIP_L;
+	sprite_setImage(2, findAnimOffset(2));	
+}
+void sprite_init_heal( int x, int y )
+{
+	sprite_setTilePos(3, x, y);
+	mysprites[3].isHeal = 1;
+    mysprites[3].facingDown = 1;
+	mysprites[3].nextTurn = HEAL_S;
+	mysprites[3].hp = HEAL_L;
+	sprite_setImage(3, findAnimOffset(3));	
+}
+//init zombies
+void sprite_init_zomb(int index, int x, int y )
+{
+	sprite_setTilePos(index, x, y);
+	mysprites[index].isZomb = 1;
+    mysprites[index].facingDown = 1;
+	mysprites[index].nextTurn = ZOMB_S;
+	mysprites[index].hp = ZOMB_L;
+	sprite_setImage(index, ZOMB_START);
+}
+void sprite_init_spit( int index, int x, int y )
+{
+	sprite_setTilePos(index, x, y);
+	mysprites[index].isSpit = 1;
+    mysprites[index].facingDown = 1;
+	mysprites[index].nextTurn = SPIT_S;
+	mysprites[index].hp = SPIT_L;
+	sprite_setImage(index, SPIT_START);
 }
 
 
@@ -341,7 +326,7 @@ void sprite_updateAll()
 	UpdateSpriteMemory();
 }
 
-void sprite_move ( int i )
+void sprite_moveCursor ( int i )
 //I:	a sprite index
 //O:	currently sprite is moved in direction of key presses...
 //TODO:	make function work via single cursor input...need to implement findpath function
@@ -352,37 +337,21 @@ void sprite_move ( int i )
 	int y = mysprites[127].y/8;
 	sprite_updateAll();
 	
-	if ( Pressed(BUTTON_UP ) && y > 0 && myBg.select[( y - 2 ) * myBg.mtw + x ] == fontMap[64] )
+	if ( keyReleased(BUTTON_UP ) && y > 0 && myBg.select[( y - 2 ) * myBg.mtw + x ] == fontMap[64] )
 	{
 		sprite_moveUp(127);
-		do
-		{
-			CheckButtons();
-		}while ( Pressed(BUTTON_UP ));
 	}
-	else if ( Pressed(BUTTON_DOWN ) && y < myBg.mth && myBg.select[( y + 2 ) * myBg.mtw + x ] == fontMap[64] )
+	else if ( keyReleased(BUTTON_DOWN ) && y < myBg.mth && myBg.select[( y + 2 ) * myBg.mtw + x ] == fontMap[64] )
 	{
 		sprite_moveDown(127);
-		do
-		{
-			CheckButtons();
-		}while ( Pressed(BUTTON_DOWN ));
 	}
-	else if ( Pressed(BUTTON_LEFT ) && x > 0 && myBg.select[ y * myBg.mtw + x - 2 ] == fontMap[64])
+	else if ( keyReleased(BUTTON_LEFT ) && x > 0 && myBg.select[ y * myBg.mtw + x - 2 ] == fontMap[64])
 	{
 		sprite_moveLeft(127);
-		do
-		{
-			CheckButtons();
-		}while ( Pressed(BUTTON_LEFT ));
 	}
-	else if ( Pressed(BUTTON_RIGHT ) && x < myBg.mtw && myBg.select[ y * myBg.mtw + x + 2 ] == fontMap[64] )
+	else if ( keyReleased(BUTTON_RIGHT ) && x < myBg.mtw && myBg.select[ y * myBg.mtw + x + 2 ] == fontMap[64] )
 	{
 		sprite_moveRight(127);
-		do
-		{
-			CheckButtons();
-		}while ( Pressed(BUTTON_RIGHT ));
 	}
 
 }
@@ -683,7 +652,8 @@ void sprite_Attack(int index, int x, int y)
 		sprite_setPos(126, -160,-160);
 		sprite_setPos(127, -160,-160);
 		
-		mysprites[attk].hp -= 5;
+		//deinc attacked hp
+		mysprites[attk].hp -= getAttackPower(index);
 
 		sprite_updateAll();
 		bg_clearMoveable();

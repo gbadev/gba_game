@@ -45,7 +45,7 @@ bool buttons[10];
 //button polling
 
 
-void CheckButtons()
+/*void CheckButtons()
 {
     buttons[0] = !((*BUTTONS) & BUTTON_A);
     buttons[1] = !((*BUTTONS) & BUTTON_B);
@@ -57,9 +57,38 @@ void CheckButtons()
     buttons[7] = !((*BUTTONS) & BUTTON_SELECT);
     buttons[8] = !((*BUTTONS) & BUTTON_R);
     buttons[9] = !((*BUTTONS) & BUTTON_L);
+}*/
+
+unsigned short curr_state, prev_state;
+void keyPoll()
+{
+prev_state = curr_state;
+curr_state = ~(*BUTTONS) & 0x03FF;
 }
 
-bool Pressed(int button)
+int keyIsDown(int key)
+{ return curr_state & key; }
+int keyIsUp(int key)
+{ return ~curr_state & key; }
+int keyWasDown(int key)
+{ return prev_state & key; }
+int keyWasUp(int key)
+{ return ~prev_state & key; }
+
+//True if key has changed state
+int keyTransition(int key)
+{ return (curr_state ^ prev_state) & key; }
+//True if key is currently pressed and was pressed
+int keyHeld(int key)
+{ return (curr_state & prev_state) & key; }
+//True if key is currently pressed and was unpressed
+int keyHit(int key)
+{ return (curr_state & ~prev_state) & key; }
+//True if key is currently not pressed but was pressed
+int keyReleased(int key)
+{ return (~curr_state & prev_state) & key; }
+
+/*bool Pressed(int button)
 {
     switch(button)
     {
@@ -74,7 +103,8 @@ bool Pressed(int button)
         case BUTTON_L: return buttons[8];
         case BUTTON_R: return buttons[9];
     }
-}
+}*/
+
 void DrawLine3(int x1, int y1, int x2, int y2, unsigned short color)
 {
     int i, deltax, deltay, numpixels;

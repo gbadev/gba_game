@@ -53,6 +53,10 @@ void bg_centerOver( int curr );
 void bg_drawMoveableArea ( int, int moves);
 void bg_drawMoveableSquares ( int, int, int );
 void bg_drawMoveableSquare ( int, int);
+
+void bg_drawAttackableRange(int index );
+void bg_drawRangeSquares ( int x, int y, int moves );
+
 void bg_clearMoveable();
 void bg_updateMoveable();
 int bg_tileOccupied ( int x, int y );
@@ -197,7 +201,7 @@ void bg_scroll()
 {
 	//process y - axis movement first
     //move up
-    if( Pressed ( BUTTON_UP ))
+    if( keyHeld ( BUTTON_UP ))
         if ( myBg.y > -16)
         {
             (myBg.y)--;
@@ -205,7 +209,7 @@ void bg_scroll()
         }
 
     //move down
-    if( Pressed ( BUTTON_DOWN))
+    if( keyHeld ( BUTTON_DOWN))
 		if ( (myBg.y + screen_height) <  myBg.height )
         {
             (myBg.y)++;
@@ -216,7 +220,7 @@ void bg_scroll()
 
     //process x movement
     //move left
-    if( Pressed ( BUTTON_LEFT ))
+    if( keyHeld ( BUTTON_LEFT ))
         if ( myBg.x > -16)
         {
             (myBg.x)--;
@@ -224,7 +228,7 @@ void bg_scroll()
         }
 		
     //move right
-    if( Pressed ( BUTTON_RIGHT ))
+    if( keyHeld ( BUTTON_RIGHT ))
 		if ( ( myBg.x + screen_width ) < myBg.width)
         {
 			(myBg.x)++;
@@ -492,3 +496,39 @@ int bg_drawAttackableSquares(int index)
 	
 	return rval;
 }
+
+void bg_drawAttackableRange(int index )
+{
+	bg_centerOver(index);
+	bg_drawRangeSquares ( mysprites[index].x/8, mysprites[index].y/8, getSpecialRange(index));
+
+}
+
+void bg_drawRangeSquares ( int x, int y, int moves )
+//I:	a tile's x and y indexes, the number of moves left
+//O:	moveable map is generated ( really shitty algoritm currently )
+//R:	none
+{ 
+	//if the current x,y tile indexes are valid and the tile at x,y is passable
+	if (isValidMapPosition ( x, y ) && moves > myBg.movesleft[y/2 *(myBg.mtw/2)+x/2])
+	{
+		//that square is passable, thus update movement map to include it
+		myBg.movesleft[y/2*(myBg.mtw/2) + x/2] = moves;
+		bg_drawMoveableSquare ( x, y );
+		
+		//if there are more moves to make
+		if ( moves )
+		{
+			//check to see if tile is passable before recursively calling in all directions
+			if ( isValidMapPosition ( x-2, y ))
+				bg_drawRangeSquares ( x - 2, y , moves - 1 );
+			if ( isValidMapPosition ( x+2, y ))
+				bg_drawRangeSquares ( x + 2, y , moves - 1 );
+			if ( isValidMapPosition ( x, y-2 ) )
+				bg_drawRangeSquares ( x, y - 2 , moves - 1 );
+			if ( isValidMapPosition ( x, y+2 ))
+				bg_drawRangeSquares ( x, y  + 2, moves - 1 );
+		}
+	}
+}
+
