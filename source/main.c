@@ -126,12 +126,13 @@ int main ( void )
 				{	
 					//draw normal attack area
 					sprite_setPos( 127, mysprites[myGame.curr].x, mysprites[myGame.curr].y);
-					bg_drawAttackableRange ( myGame.curr);
+					bg_drawSelectableRange ( myGame.curr);
 					myGame.mode = 3;
 				}
 				else if ( myGame.mode == 3 )
 				{
 					bg_clearMoveable();
+					sprite_gren_special ( myGame.curr, mysprites[127].x, mysprites[127].y );
 					sprite_setPos ( 127, -160, -160 );
 					myGame.mode = 0;
 					myGame.hasMoved = 1;
@@ -211,14 +212,14 @@ int main ( void )
 		
 		if (Pressed(BUTTON_L) && mode == 0)	
 		{
-			bg_drawAttackableRange ( curr );
+			bg_drawSelectableRange ( curr );
 			mode = 3;
 			
 		}
 		
 		if (Pressed(BUTTON_L) && mode == 0)	
 		{
-			//bg_drawAttackableRange ( curr );
+			//bg_drawSelectableRange ( curr );
 			bg_clearMoveable();
 			mode = 2;
 			

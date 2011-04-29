@@ -516,6 +516,8 @@ typedef struct tagSpriteHanlder
 	int nextTurn;
 	
 	short hp;
+	
+	u16 lastImage;
 
 }SpriteHanlder;
 SpriteHanlder mysprites[128];

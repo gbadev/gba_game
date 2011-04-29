@@ -54,7 +54,7 @@ void bg_drawMoveableArea ( int, int moves);
 void bg_drawMoveableSquares ( int, int, int );
 void bg_drawMoveableSquare ( int, int);
 
-void bg_drawAttackableRange(int index );
+void bg_drawSelectableRange(int index );
 void bg_drawRangeSquares ( int x, int y, int moves );
 
 void bg_clearMoveable();
@@ -497,7 +497,7 @@ int bg_drawAttackableSquares(int index)
 	return rval;
 }
 
-void bg_drawAttackableRange(int index )
+void bg_drawSelectableRange(int index )
 {
 	bg_centerOver(index);
 	bg_drawRangeSquares ( mysprites[index].x/8, mysprites[index].y/8, getSpecialRange(index));
@@ -531,4 +531,5 @@ void bg_drawRangeSquares ( int x, int y, int moves )
 		}
 	}
 }
+
 
