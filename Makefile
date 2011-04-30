@@ -18,7 +18,7 @@ include $(DEVKITARM)/gba_rules
 #---------------------------------------------------------------------------------
 TARGET		:=	$(shell basename $(CURDIR))
 BUILD		:=	build
-SOURCES		:=	source source/graphics
+SOURCES		:=	source
 DATA		:=
 GRAPHICS	:=	gfx	
 INCLUDES	:=

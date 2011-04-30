@@ -1,1 +1,1 @@
-showmoves.o: c:/dev/source/graphics/showmoves.c
+showmoves.o: h:/dev/source/showmoves.c

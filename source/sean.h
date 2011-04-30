@@ -46,8 +46,8 @@ extern IWRAM_CODE void MyHandler(void);
 extern void PlaySound(const PCMSOUND * theSound);
 extern void init_sound();
 
-extern EWRAM_DATA u32 SampleLength;
-extern EWRAM_DATA u32 SamplePosition;
+extern u32 SampleLength;
+extern u32 SamplePosition;
 
 //END: Sean Sound Stuff
 #endif

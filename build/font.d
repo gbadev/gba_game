@@ -1,1 +1,1 @@
-font.o: c:/dev/source/graphics/font.c
+font.o: h:/dev/source/font.c

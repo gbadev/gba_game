@@ -1,3 +1,3 @@
-stack.o: c:/dev/source/stack.c c:/dev/source/stack.h
+stack.o: h:/dev/source/stack.c h:/dev/source/stack.h
 
-c:/dev/source/stack.h:
+h:/dev/source/stack.h:

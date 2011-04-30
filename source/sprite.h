@@ -1,23 +1,16 @@
 //sprite.h
 //poop
 #include <math.h>
-#include "graphics/sprites/master_pal.h"
-#include "graphics/sprites/animations.h"
-#include "graphics/sprites/dave_tank_sprites.h"
-#include "graphics/sprites/dave_zombie_Sprites.h"
-#include "graphics/sprites/scott_char.h"
-#include "graphics/sprites/scott_zomb.h"
-#include "graphics/sprites/sean_grenadier.h"
-#include "graphics/sprites/thomas_all_chars.h"
+#include "master_pal_spr.h"
+#include "animations.h"
+#include "dave_tank_sprites.h"
+#include "dave_zombie_Sprites.h"
+#include "scott_char.h"
+#include "scott_zomb.h"
+#include "sean_grenadier.h"
+#include "thomas_all_chars.h"
 
-#include "graphics/sprites/master_pal.c"
-#include "graphics/sprites/animations.c"
-#include "graphics/sprites/dave_tank_sprites.c"
-#include "graphics/sprites/dave_zombie_Sprites.c"
-#include "graphics/sprites/scott_char.c"
-#include "graphics/sprites/scott_zomb.c"
-#include "graphics/sprites/sean_grenadier.c"
-#include "graphics/sprites/thomas_all_chars.c"
+
 
 extern int getRange(int index);
 //init sprite memory
@@ -132,7 +125,7 @@ void sprite_init()
 	int n, i;
 	//copy in sprite palette
     for(n = 0; n < 42; n++)  //Changed from 256 to 42 due to grit processing.
-        SpritePal[n] = master_palPal[n];
+        SpritePal[n] = master_pal_sprPal[n];
 
    
 	

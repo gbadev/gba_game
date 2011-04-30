@@ -7,11 +7,9 @@
 
 //graphics
 #include "scott.h"
-#include "graphics/gravedemo.h"
-#include "graphics/gravedemoshadow.h"
-#include "graphics/showmoves.h"
-#include "graphics/robot.h"
-#include "graphics/font.h"
+#include "showmoves.h"
+#include "font.h"
+#include "map.h"
 
 
 //source - needs to have graphics loaded before source
@@ -21,7 +19,6 @@
 #include "ui.h"
 #include "tty.h"
 #include "gamestate.h"
-
 
 int main ( void )
 {
@@ -39,7 +36,7 @@ int main ( void )
 	sprite_init(); //initializes and loads sprite data
     
 	//load()
-	bg_load(&x, &y, gravedemoPal, gravedemoMap, gravedemoTiles , gravedemoshadowMap, 512, 512);
+	bg_load(&x, &y, master_pal_bgsPal, parkMap, parkTiles , park_shadowMap, 256, 256);
 	//bg_load(&x,&y); //initializes and loads gravedemomap
 	//sprite_load();
 	

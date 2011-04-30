@@ -1,0 +1,10 @@
+#include "master_pal_bgs.h"
+#include "park.h"
+#include "park_shadow.h"
+#include "pizza.h"
+#include "pizza_shadow.h"
+#include "park.h"
+#include "park_shadow.h"
+#include "finale.h"
+#include "finale_shadow.h"
+

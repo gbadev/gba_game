@@ -1,8 +1,8 @@
 #include "sean.h"
 
 // Global Sound Stuff
-EWRAM_DATA u32 SampleLength = 0;
-EWRAM_DATA u32 SamplePosition = 0;
+u32 SampleLength = 0;
+u32 SamplePosition = 0;
 
 IWRAM_CODE void MyHandler(void);
 
