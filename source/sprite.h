@@ -73,6 +73,7 @@ void sprite_snip_special ( int index, int x, int y );
 #define GRENADE_START 108
 #define SPITBALL_START 111
 #define BLOOD_START 114
+#define HEALANIM_START 117
 
 /*
 	0 dave_tank_sprites - 2560
@@ -182,7 +183,8 @@ void sprite_init()
 		mysprites[n].facingRight = 0;
 		mysprites[n].nextTurn = 0;
 		mysprites[n].priority = 2;
-		mysprites[n].hp=99;
+		mysprites[n].hp=0;
+		mysprites[n].maxHp = 0;
 		mysprites[n].lastImage = -1;
 		sprite_setPos(n, -160, -160);
 		sprite_setImage(n, n);
@@ -226,6 +228,7 @@ void sprite_init_tank( int x, int y )
     mysprites[0].facingDown = 1;
 	mysprites[0].nextTurn = TANK_S;
 	mysprites[0].hp = TANK_L;
+	mysprites[0].maxHp = TANK_L;
 	sprite_setImage(0, findAnimOffset(0));
 	sprite_setImage(0, findAnimOffset(0));
 	//mysprites[0].lastImage = (TANK_START * 8) | PRIORITY(mysprites[0].priority);
@@ -237,6 +240,7 @@ void sprite_init_gren( int x, int y )
     mysprites[1].facingDown = 1;
 	mysprites[1].nextTurn = GREN_S;
 	mysprites[1].hp = GREN_L;
+	mysprites[1].maxHp = GREN_L;
 	sprite_setImage(1, findAnimOffset(1));	
 	sprite_setImage(1, findAnimOffset(1));	
 	//mysprites[1].lastImage = (GREN_START * 8) | PRIORITY(mysprites[1].priority);
@@ -248,6 +252,7 @@ void sprite_init_snip( int x, int y )
     mysprites[2].facingDown = 1;
 	mysprites[2].nextTurn = SNIP_S;
 	mysprites[2].hp = SNIP_L;
+	mysprites[2].maxHp = SNIP_L;
 	sprite_setImage(2, findAnimOffset(2));	
 	sprite_setImage(2, findAnimOffset(2));	
 	//mysprites[2].lastImage = (SNIP_START * 8) | PRIORITY(mysprites[2].priority);
@@ -259,6 +264,7 @@ void sprite_init_heal( int x, int y )
     mysprites[3].facingDown = 1;
 	mysprites[3].nextTurn = HEAL_S;
 	mysprites[3].hp = HEAL_L;
+	mysprites[3].maxHp = HEAL_L;
 	sprite_setImage(3, findAnimOffset(3));	
 	sprite_setImage(3, findAnimOffset(3));	
 	//mysprites[3].lastImage = (HEAL_START * 8) | PRIORITY(mysprites[3].priority);
@@ -271,6 +277,7 @@ void sprite_init_zomb(int index, int x, int y )
     mysprites[index].facingDown = 1;
 	mysprites[index].nextTurn = ZOMB_S;
 	mysprites[index].hp = ZOMB_L;
+	mysprites[index].maxHp = ZOMB_L;
 	sprite_setImage(index, ZOMB_START);
 	sprite_setImage(index, ZOMB_START);
 	//mysprites[index].lastImage = (ZOMB_START * 8) | PRIORITY(mysprites[index].priority);
@@ -282,6 +289,7 @@ void sprite_init_spit( int index, int x, int y )
     mysprites[index].facingDown = 1;
 	mysprites[index].nextTurn = SPIT_S;
 	mysprites[index].hp = SPIT_L;
+	mysprites[index].maxHp = SPIT_L;
 	sprite_setImage(index, SPIT_START);
 	sprite_setImage(index, SPIT_START);
 	//mysprites[index].lastImage = (SPIT_START * 8) | PRIORITY(mysprites[index].priority);
@@ -1411,4 +1419,55 @@ int getTankSpecialOffset(index)
 	else if ( mysprites[index].facingUp )
 		rval = 19;
 	return rval;
+}
+
+void sprite_heal_special ( int index, int x, int y )
+{
+	bg_centerOver( index );
+	
+	volatile int n;
+	
+	int thisSprite = findSpriteIndex ( x, y ) ;
+	
+	u16 prevAttackerFrame = sprites[index].attribute2;
+	if ( thisSprite > -1 )
+	{
+		int j;
+		for ( j = 0; j < 16; j++)
+		{
+			//healer healing
+			if ( j < 12 )
+				//sprites[index].attribute2 =  (offset + (j%2)*8);
+				sprite_setImage(index, HEAL_START + 17 + ( j % 2 ));
+			//Start heal anim
+			if ( j == 3 )
+			{
+				//sprites[attk].attribute2 = findGotHitOffset ( attk );
+				sprite_setPos(126, mysprites[thisSprite].x, mysprites[thisSprite].y);
+				//sprites[126].attribute2 = BLOOD_START * 8;
+				sprite_setImage(126, HEALANIM_START);
+			}
+			//spurt blood
+			if ( j > 3 )
+			{
+				sprite_setImage(126, HEALANIM_START + ( j%2 ));
+			}
+			sprite_updateAll();
+			for ( n = 0; n < 10000; n++);
+		}
+	
+		sprites[index].attribute2 = prevAttackerFrame;
+		
+		mysprites[thisSprite].hp += HEAL_POWER;
+	
+		if ( mysprites[thisSprite].hp > mysprites[thisSprite].maxHp )
+			mysprites[thisSprite].hp = mysprites[thisSprite].maxHp;
+	}
+	
+	int i;
+	for ( i = 114; i < 128; ++i )
+		sprite_setPos ( i, -160, -160 );
+
+	bg_clearMoveable();
+	
 }

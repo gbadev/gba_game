@@ -136,7 +136,8 @@ int main ( void )
 					bg_clearMoveable();
 					//sprite_gren_special ( myGame.curr, mysprites[127].x, mysprites[127].y );
 					//sprite_snip_special ( myGame.curr, mysprites[127].x, mysprites[127].y );
-					sprite_tank_special ( myGame.curr, mysprites[127].x, mysprites[127].y );
+					//sprite_tank_special ( myGame.curr, mysprites[127].x, mysprites[127].y );
+					sprite_heal_special ( myGame.curr, mysprites[127].x, mysprites[127].y );
 					sprite_setPos ( 127, -160, -160 );
 					myGame.mode = 0;
 					myGame.hasMoved = 1;

@@ -42,6 +42,7 @@
 #define GREN_P 1
 
 //special
+#define HEAL_POWER 20
 #define SPECIAL 1
 #define IDLE 0
 

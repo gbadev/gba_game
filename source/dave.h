@@ -516,6 +516,7 @@ typedef struct tagSpriteHanlder
 	int nextTurn;
 	
 	short hp;
+	short maxHp;
 	
 	u16 lastImage;
 
