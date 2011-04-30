@@ -45,6 +45,7 @@ void bg_init();
 void bg_load(int *x, int *y, const u16 * currPal, const u16 * currMap, const u16 * currTiles ,const u16 * currShadow, 
 	int width, int height);
 void bg_loadTile(int , int, u16 *, u16 *);
+
 //scrolling
 void bg_scroll();
 void bg_centerOver( int curr );
@@ -54,12 +55,17 @@ void bg_drawMoveableArea ( int, int moves);
 void bg_drawMoveableSquares ( int, int, int );
 void bg_drawMoveableSquare ( int, int);
 
+//selectable area
 void bg_drawSelectableRange(int index );
 void bg_drawRangeSquares ( int x, int y, int moves );
 
+
 void bg_clearMoveable();
 void bg_updateMoveable();
+
+//tile occupied
 int bg_tileOccupied ( int x, int y );
+int bg_tileOccupiedByPlayer ( int x, int y );
 
 //helpers
 int isValidMapPosition ( int x, int y);
@@ -290,7 +296,7 @@ void bg_centerOver( int curr )
 		REG_BG2HOFS = myBg.x ;
 		sprite_updateAll();
 		volatile int n;
-		for ( n = 0; n < 10000; n++);
+		for ( n = 0; n < 3000; n++);
 	}
 
 		
@@ -340,16 +346,16 @@ void bg_drawMoveableSquares ( int x, int y, int moves )
 		if ( moves )
 		{
 			//check to see if tile is passable before recursively calling in all directions
-			if ( isValidMapPosition ( x-2, y ) &&myBg.shadow[y * myBg.mtw + x - 2 ] != fontMap[64]
+			if ( isValidMapPosition ( x-2, y ) &&myBg.shadow[y * myBg.mtw + x - 2 ] != 0x1001
 				&& !bg_tileOccupied ( (x-2)*8, y*8 ))
 				bg_drawMoveableSquares ( x - 2, y , moves - 1 );
-			if ( isValidMapPosition ( x+2, y ) &&myBg.shadow[y * myBg.mtw + x + 2 ] != fontMap[64]
+			if ( isValidMapPosition ( x+2, y ) &&myBg.shadow[y * myBg.mtw + x + 2 ] != 0x1001
 				&& !bg_tileOccupied ( (x+2)*8, y*8 ))
 				bg_drawMoveableSquares ( x + 2, y , moves - 1 );
-			if ( isValidMapPosition ( x, y-2 ) &&myBg.shadow[( y - 2 ) * myBg.mtw + x ] != fontMap[64]
+			if ( isValidMapPosition ( x, y-2 ) &&myBg.shadow[( y - 2 ) * myBg.mtw + x ] != 0x1001
 				&& !bg_tileOccupied ( x*8, (y-2)*8 ))
 				bg_drawMoveableSquares ( x, y - 2 , moves - 1 );
-			if ( isValidMapPosition ( x, y+2 ) &&myBg.shadow[( y + 2 ) * myBg.mtw + x ] != fontMap[64]
+			if ( isValidMapPosition ( x, y+2 ) &&myBg.shadow[( y + 2 ) * myBg.mtw + x ] != 0x1001
 				&& !bg_tileOccupied ( x*8, (y+2)*8 ))
 				bg_drawMoveableSquares ( x, y  + 2, moves - 1 );
 		}
@@ -532,4 +538,50 @@ void bg_drawRangeSquares ( int x, int y, int moves )
 	}
 }
 
+void bg_drawSniperRange ( int curr )
+{	
+	bg_centerOver(curr );
+	int xi = mysprites[curr].x / 8;
+	int yi = mysprites[curr].y / 8;
+	
+	bg_drawMoveableSquare ( xi, yi );
+	
+	int thisx, thisy;
+	
+	thisx = xi + 2;
+	thisy = yi;
+	
+	while ( isValidMapPosition ( thisx, thisy ) && myBg.shadow[thisy*myBg.mtw+thisx] != 0x1001 )
+	{
+		bg_drawMoveableSquare ( thisx, thisy );
+		thisx+=2;
+	}
+	
+	thisx = xi - 2;
+	thisy = yi;
+	
+	while ( isValidMapPosition ( thisx, thisy ) && myBg.shadow[thisy*myBg.mtw+thisx] != 0x1001 )
+	{
+		bg_drawMoveableSquare ( thisx, thisy );
+		thisx-=2;
+	}
+	
+	thisx = xi;
+	thisy = yi + 2;
+	
+	while ( isValidMapPosition ( thisx, thisy ) && myBg.shadow[thisy*myBg.mtw+thisx] != 0x1001)
+	{
+		bg_drawMoveableSquare ( thisx, thisy );
+		thisy+=2;
+	}
+	
+	thisx = xi;
+	thisy = yi - 2;
+	
+	while ( isValidMapPosition ( thisx, thisy ) && myBg.shadow[thisy*myBg.mtw+thisx] != 0x1001 )
+	{
+		bg_drawMoveableSquare ( thisx, thisy );
+		thisy-=2;
+	}
+}
 

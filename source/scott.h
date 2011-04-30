@@ -21,7 +21,7 @@
 #define SPIT_SR 4
 #define HEAL_SR 4
 #define SNIP_SR 4
-#define TANK_SR 4
+#define TANK_SR 1
 #define GREN_SR 4
 
 

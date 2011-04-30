@@ -35,6 +35,7 @@ void sprite_init_spit( int index, int x, int y );
 void sprite_setPos( int, int , int  );
 void sprite_setTilePos( int index, int x, int y );
 void sprite_setImage ( int i, int thisImage );
+void sprite_resetImage ( int i );
 
 void sprite_draw( int , int , int  );
 void sprite_updateAll();
@@ -43,21 +44,24 @@ void sprite_moveDown(int);
 void sprite_moveLeft(int);
 void sprite_moveRight(int);
 
-//needs to be moved to sprite.h
 void sprite_moveCursor ( int i );
-
-void sprite_zombie_move ( int curr );
-int sprite_zombie_attack(int curr);
-
-//special attacks
-void sprite_gren_special ( int curr, int end_x, int end_y );
-
 int PathFinder ( Stack * sptr, int this_x, int this_y, int end_x, int end_y,int * pathfound);
 void sprite_findPath(int i, int start_x, int start_y, int end_x, int end_y );
+
+void sprite_Attack(int index, int x, int y);
 
 int findAnimOffset(int );
 int findSpriteIndex(int x, int y);
 int findGotHitOffset ( int attk );
+
+void sprite_zombie_move ( int curr );
+int sprite_zombie_attack(int curr);
+int sprite_zombie_spit ( int curr );
+
+//special attacks
+void sprite_gren_special ( int curr, int end_x, int end_y );
+void sprite_snip_special ( int index, int x, int y );
+
 
 #define TANK_START 0
 #define ZOMB_START 20
@@ -223,7 +227,8 @@ void sprite_init_tank( int x, int y )
 	mysprites[0].nextTurn = TANK_S;
 	mysprites[0].hp = TANK_L;
 	sprite_setImage(0, findAnimOffset(0));
-	mysprites[0].lastImage = (TANK_START * 8) | PRIORITY(mysprites[0].priority);
+	sprite_setImage(0, findAnimOffset(0));
+	//mysprites[0].lastImage = (TANK_START * 8) | PRIORITY(mysprites[0].priority);
 }
 void sprite_init_gren( int x, int y )
 {
@@ -233,7 +238,8 @@ void sprite_init_gren( int x, int y )
 	mysprites[1].nextTurn = GREN_S;
 	mysprites[1].hp = GREN_L;
 	sprite_setImage(1, findAnimOffset(1));	
-	mysprites[1].lastImage = (GREN_START * 8) | PRIORITY(mysprites[1].priority);
+	sprite_setImage(1, findAnimOffset(1));	
+	//mysprites[1].lastImage = (GREN_START * 8) | PRIORITY(mysprites[1].priority);
 }
 void sprite_init_snip( int x, int y )
 {
@@ -243,7 +249,8 @@ void sprite_init_snip( int x, int y )
 	mysprites[2].nextTurn = SNIP_S;
 	mysprites[2].hp = SNIP_L;
 	sprite_setImage(2, findAnimOffset(2));	
-	mysprites[2].lastImage = (SNIP_START * 8) | PRIORITY(mysprites[2].priority);
+	sprite_setImage(2, findAnimOffset(2));	
+	//mysprites[2].lastImage = (SNIP_START * 8) | PRIORITY(mysprites[2].priority);
 }
 void sprite_init_heal( int x, int y )
 {
@@ -253,7 +260,8 @@ void sprite_init_heal( int x, int y )
 	mysprites[3].nextTurn = HEAL_S;
 	mysprites[3].hp = HEAL_L;
 	sprite_setImage(3, findAnimOffset(3));	
-	mysprites[3].lastImage = (HEAL_START * 8) | PRIORITY(mysprites[3].priority);
+	sprite_setImage(3, findAnimOffset(3));	
+	//mysprites[3].lastImage = (HEAL_START * 8) | PRIORITY(mysprites[3].priority);
 }
 //init zombies
 void sprite_init_zomb(int index, int x, int y )
@@ -264,7 +272,8 @@ void sprite_init_zomb(int index, int x, int y )
 	mysprites[index].nextTurn = ZOMB_S;
 	mysprites[index].hp = ZOMB_L;
 	sprite_setImage(index, ZOMB_START);
-	mysprites[index].lastImage = (ZOMB_START * 8) | PRIORITY(mysprites[index].priority);
+	sprite_setImage(index, ZOMB_START);
+	//mysprites[index].lastImage = (ZOMB_START * 8) | PRIORITY(mysprites[index].priority);
 }
 void sprite_init_spit( int index, int x, int y )
 {
@@ -274,7 +283,8 @@ void sprite_init_spit( int index, int x, int y )
 	mysprites[index].nextTurn = SPIT_S;
 	mysprites[index].hp = SPIT_L;
 	sprite_setImage(index, SPIT_START);
-	mysprites[index].lastImage = (SPIT_START * 8) | PRIORITY(mysprites[index].priority);
+	sprite_setImage(index, SPIT_START);
+	//mysprites[index].lastImage = (SPIT_START * 8) | PRIORITY(mysprites[index].priority);
 }
 
 
@@ -303,6 +313,15 @@ void sprite_setImage ( int i, int thisImageIndex )
 	sprites[i].attribute2 = (thisImageIndex * 8) | PRIORITY(mysprites[i].priority);
 	UpdateSpriteMemory();
 }
+
+void sprite_resetImage ( int i )
+{
+	//swap
+	u16 temp = mysprites[i].lastImage;
+	sprites[i].attribute2 = mysprites[i].lastImage;
+	mysprites[i].lastImage = temp;
+}
+	
 
 void sprite_draw( int index, int x, int y )
 //I:	a sprite index, and an x and y position
@@ -850,6 +869,7 @@ int sprite_zombie_attack(int curr)
 
 int sprite_zombie_spit ( int curr )
 {
+	bg_centerOver ( curr );
 	int rval = 0;
 
 	Stack px, py; //potential attacks
@@ -859,32 +879,46 @@ int sprite_zombie_spit ( int curr )
 	int i;
 	int x, y;
 	int thisIndex = 0;
-	int nextIndex = 1;
+	int nextIndex = 1;	
+	int thisSprite = 0;
+	
 	
 	volatile int n;
 	
+	//draw selectable range for current sprite
 	bg_drawSelectableRange( curr );
 	
-	for ( n = 0; n < 1000000; ++n);
-	
+	//check all map squares for players that the spitter can attack
 	for ( y = 0; y < myBg.mth; y+=2 )
 		for ( x = 0; x < myBg.mtw; x+=2 )
+			//if a the square is selectable and its occpuied by a human
 			if ( myBg.select[y*myBg.mtw+x] == fontMap[64] && bg_tileOccupiedByPlayer ( x*8, y*8 ) )
 			{
+				//push this location on stacks
 				stack_push ( &px, x );
 				stack_push ( &py, y );
+				//found a dude to attack
 				rval = 1;
 			}
+	//if there is a dude to attack
 	if ( !stack_empty ( &px ))
 	{
+		//animation start
 		int start_x = mysprites[curr].x;
 		int start_y = mysprites[curr].y;
-		int thisSprite = 0;
+		
+		//randomly select a dude from the stack of attackable dudes
 		if ( stack_size ( &px )  > 1 )
 			thisSprite = rand() % ( stack_size(&px) );
+		
+		//animation ends at this dude
 		int end_x = px.arr[thisSprite] * 8;
 		int end_y = py.arr[thisSprite] * 8;	
+		
+		//this dudes sprite index is
+		thisSprite = findSpriteIndex ( end_x, end_y);
 	
+		//play moving spit animation
 		while (( start_x != end_x) || (start_y != end_y) )
 		{
 			int dx = end_x-start_x;
@@ -914,27 +948,29 @@ int sprite_zombie_spit ( int curr )
 			for ( n = 0; n < 10000; ++n);
 		}
 		
-		thisIndex = findSpriteIndex ( end_x, end_y );
-		sprite_setImage(thisIndex, findGotHitOffset(thisIndex));
-		mysprites[thisIndex].hp -= SPIT_P;
+		//change sprite to got hit
+		sprite_setImage(thisSprite, findGotHitOffset(thisSprite));
+		//decrement hp
+		mysprites[thisSprite].hp -= SPIT_P;
 		
 		
+		//play spit animation over sprite
 		for ( i = 0; i < 16; i++ )
 		{
 			sprite_setImage(125, SPITBALL_START + ( i%3 ));
 			sprite_updateAll();
 			for ( n = 0; n < 10000; ++n);
 		}
-		
-		sprite_setImage(thisIndex, mysprites[thisIndex].lastImage);
-		
+		//restore prev frame
+		sprite_resetImage(thisSprite);
 	}
 	
+	//free stacks
 	stack_free ( &px );
 	stack_free ( &py );
 	
 	//clear assoicated ui sprites
-	for ( i = 113; i < 128; ++i )
+	for ( i = 114; i < 128; ++i )
 		sprite_setPos ( i, -160, -160 );
 	
 	bg_clearMoveable();
@@ -989,7 +1025,6 @@ void sprite_gren_special ( int curr, int end_x, int end_y )
 	bg_clearMoveable();
 	
 	//find all sprites that got hit!
-	
 	end_x /= 8;
 	end_y /= 8;
 	
@@ -1027,6 +1062,7 @@ void sprite_gren_special ( int curr, int end_x, int end_y )
 			stack_push ( &gotHit, findSpriteIndex((end_x)*8, (end_y-2)*8 ));		
 	}
 	
+	//init stack of sprites to change back
 	Stack changeBack;
 	stack_init ( &changeBack );
 	
@@ -1051,19 +1087,328 @@ void sprite_gren_special ( int curr, int end_x, int end_y )
 	while (!stack_empty (&changeBack) )
 	{
 		int thisSprite = stack_pop ( &changeBack );
-		sprite_setImage(thisSprite, mysprites[thisSprite].lastImage ); 
+		sprite_resetImage(thisSprite ); 
 		sprite_updateAll();
 	}
 
+	//free stacks
 	stack_free ( &gotHit );
 	stack_free ( &changeBack );
 	
 	//clear assoicated ui sprites
-	for ( i = 113; i < 128; ++i )
+	for ( i = 114; i < 128; ++i )
 		sprite_setPos ( i, -160, -160 );
 	
 	bg_clearMoveable();
 }
+
+void sprite_snip_special ( int index, int x, int y )
+//passing it cursor pos
+{
+	bg_centerOver( index );
 	
+	Stack gotHit, changeBack;
+	stack_init ( &gotHit );
+	stack_init ( &changeBack );
 	
+	u16 prevAttackerFrame = sprites[index].attribute2;
+	
+	int numhit = 0;
+	
+	if (!(x == mysprites[index].x && y == mysprites[index].y ))
+	{
 		
+		//find animation offset
+		int offset = findAnimOffset(index);
+		
+		if ( mysprites[index].x > x )
+		{//attacking left
+			mysprites[index].facingLeft = 1;
+			mysprites[index].facingRight = 0;
+			mysprites[index].facingUp = 0;
+			mysprites[index].facingDown = 0;
+			offset += 10;
+			x = mysprites[index].x / 8 - 2;
+			y = mysprites[index].y / 8;
+			while ( isValidMapPosition(x,y) && myBg.select[y*myBg.mtw+x] != 0x1001 && numhit < 5 )
+			{
+				if ( bg_tileOccupied ( x * 8, y * 8 ) )
+				{
+					int thisSprite = findSpriteIndex ( x * 8, y * 8 );
+					stack_push ( &gotHit, thisSprite );
+					numhit++;
+				}
+				x-=2;
+			}
+		}
+		else if ( mysprites[index].x < x )
+		{//attacking right
+			mysprites[index].facingLeft = 0;
+			mysprites[index].facingRight = 1;
+			mysprites[index].facingUp = 0;
+			mysprites[index].facingDown = 0;
+			offset += 10;
+			x = mysprites[index].x / 8 + 2;
+			y = mysprites[index].y / 8;
+			while ( isValidMapPosition(x,y) && myBg.select[y*myBg.mtw+x] != 0x1001 && numhit < 5)
+			{
+				if ( bg_tileOccupied ( x * 8, y * 8 ) )
+				{
+					int thisSprite = findSpriteIndex ( x * 8, y * 8 );
+					stack_push ( &gotHit, thisSprite );
+					numhit++;
+				}
+				x+=2;
+			}
+			
+		}
+		else if ( mysprites[index].y > y )
+		{//attacking up
+			mysprites[index].facingLeft = 0;
+			mysprites[index].facingRight = 0;
+			mysprites[index].facingUp = 1;
+			mysprites[index].facingDown = 0;
+			offset += 14;
+			x = mysprites[index].x / 8;
+			y = mysprites[index].y / 8 - 2;
+			while ( isValidMapPosition(x,y) && myBg.select[y*myBg.mtw+x] != 0x1001 && numhit < 5)
+			{
+				if ( bg_tileOccupied ( x * 8, y * 8 ) )
+				{
+					int thisSprite = findSpriteIndex ( x * 8, y * 8 );
+					stack_push ( &gotHit, thisSprite );
+					numhit++;
+				}
+				y-=2;
+			}
+		}
+		else if ( mysprites[index].y < y )
+		{//attacking down
+			mysprites[index].facingLeft = 0;
+			mysprites[index].facingRight = 0;
+			mysprites[index].facingUp = 0;
+			mysprites[index].facingDown = 1;
+			offset += 12;
+			x = mysprites[index].x / 8;
+			y = mysprites[index].y / 8 + 2;
+			while ( isValidMapPosition(x,y) && myBg.select[y*myBg.mtw+x] != 0x1001 && numhit < 5)
+			{
+				if ( bg_tileOccupied ( x * 8, y * 8 ) )
+				{
+					int thisSprite = findSpriteIndex ( x * 8, y * 8 );
+					stack_push ( &gotHit, thisSprite );
+					numhit++;
+				}
+				y+=2;
+			}
+		}
+		
+		
+		
+		int j;
+		for ( j = 0; j < 16; j++)
+		{
+			//character attacking
+			if ( j < 12 )
+				//sprites[index].attribute2 =  (offset + (j%2)*8);
+				sprite_setImage(index, (offset + ( j % 2) ));
+			//attacked character got hit
+			if ( j == 3 )
+			{
+				int startIndex = 121;
+				while ( !stack_empty(&gotHit ) )
+				{
+					int attk = stack_pop ( & gotHit );
+					stack_push( &changeBack , attk );
+					//sprites[attk].attribute2 = findGotHitOffset ( attk );
+					sprite_setImage(attk, findGotHitOffset(attk));
+					sprite_setPos(startIndex, mysprites[attk].x, mysprites[attk].y);
+					//sprites[126].attribute2 = BLOOD_START * 8;
+					sprite_setImage(startIndex, BLOOD_START);
+					startIndex++;
+				}
+			}
+			//spurt blood
+			if ( j > 3 )
+			{
+				int k;
+				for ( k = 121; k <= 125; ++k )
+					sprite_setImage(k, BLOOD_START + ( j%3 ));
+			}
+			sprite_updateAll();
+			volatile int n;
+			for ( n = 0; n < 10000; n++);
+		}
+		
+		//reset sprites to previous image.
+		while (!stack_empty (&changeBack) )
+		{
+			int thisSprite = stack_pop ( &changeBack );
+			sprite_resetImage(thisSprite ); 
+			sprite_updateAll();
+		}
+		sprites[index].attribute2 = prevAttackerFrame;
+		
+		//free stacks
+		stack_free ( &gotHit );
+		stack_free ( &changeBack );
+	
+		//clear assoicated ui sprites
+		int i;
+		for ( i = 114; i < 128; ++i )
+			sprite_setPos ( i, -160, -160 );
+	
+		bg_clearMoveable();
+	
+	}
+
+}
+
+void sprite_tank_special ( int index, int x, int y )
+{
+	bg_centerOver( index );
+
+	Stack gotHit, changeBack;
+	stack_init ( &gotHit );
+	stack_init ( &changeBack );
+	
+	int anims[3];
+	
+	int xi = mysprites[index].x/8;
+	int yi = mysprites[index].y/8;
+	
+	u16 prevAttackerFrame = sprites[index].attribute2;
+	
+	if (!(x == mysprites[index].x && y == mysprites[index].y ))
+	{
+		//find animation offset
+		int offset = findAnimOffset(index);
+		
+		if ( mysprites[index].x > x )
+		{//attacking left
+			mysprites[index].facingLeft = 1;
+			mysprites[index].facingRight = 0;
+			mysprites[index].facingUp = 0;
+			mysprites[index].facingDown = 0;
+			offset += 10;
+			if (isValidMapPosition ( xi -2, yi ) && bg_tileOccupied ( (xi - 2)*8, yi*8 ) )
+				stack_push ( &gotHit, findSpriteIndex ( (xi - 2) * 8, yi * 8 ) );
+			if (isValidMapPosition ( xi -2, yi + 2 ) && bg_tileOccupied ( (xi - 2)*8, (yi + 2)*8 ) )
+				stack_push ( &gotHit, findSpriteIndex ( (xi - 2) * 8, ( yi + 2 ) * 8 ) );
+			if (isValidMapPosition ( xi -2, yi - 2 ) && bg_tileOccupied ( (xi - 2)*8, (yi - 2)*8 ) )
+				stack_push ( &gotHit, findSpriteIndex ( (xi - 2) * 8, ( yi - 2 ) * 8 ) );
+		}
+		else if ( mysprites[index].x < x )
+		{//attacking right
+			mysprites[index].facingLeft = 0;
+			mysprites[index].facingRight = 1;
+			mysprites[index].facingUp = 0;
+			mysprites[index].facingDown = 0;
+			offset += 10;
+			if (isValidMapPosition ( xi +2, yi ) && bg_tileOccupied ( (xi + 2)*8, yi*8 ) )
+				stack_push ( &gotHit, findSpriteIndex ( (xi + 2) * 8, yi * 8 ) );
+			if (isValidMapPosition ( xi +2, yi + 2 ) && bg_tileOccupied ( (xi + 2)*8, (yi + 2)*8 ) )
+				stack_push ( &gotHit, findSpriteIndex ( (xi + 2) * 8, ( yi + 2 ) * 8 ) );
+			if (isValidMapPosition ( xi +2, yi - 2 ) && bg_tileOccupied ( (xi + 2)*8, (yi - 2 )*8 ) )
+				stack_push ( &gotHit, findSpriteIndex ( (xi + 2) * 8, ( yi - 2 ) * 8 ) );
+		}
+		else if ( mysprites[index].y > y )
+		{//attacking up
+			mysprites[index].facingLeft = 0;
+			mysprites[index].facingRight = 0;
+			mysprites[index].facingUp = 1;
+			mysprites[index].facingDown = 0;
+			offset += 14;
+			if (isValidMapPosition ( xi, yi - 2 ) && bg_tileOccupied ( xi*8, (yi - 2)*8 ) )
+				stack_push ( &gotHit, findSpriteIndex ( (xi) * 8, (yi-2) * 8 ) );
+			if (isValidMapPosition ( xi -2, yi - 2 ) && bg_tileOccupied ( (xi - 2)*8, (yi - 2)*8 ) )
+				stack_push ( &gotHit, findSpriteIndex ( (xi - 2) * 8, ( yi - 2 ) * 8 ) );
+			if (isValidMapPosition ( xi +2, yi - 2 ) && bg_tileOccupied ( (xi + 2)*8, (yi - 2)*8 ) )
+				stack_push ( &gotHit, findSpriteIndex ( (xi + 2) * 8, ( yi - 2 ) * 8 ) );
+		}
+		else if ( mysprites[index].y < y )
+		{//attacking down
+			mysprites[index].facingLeft = 0;
+			mysprites[index].facingRight = 0;
+			mysprites[index].facingUp = 0;
+			mysprites[index].facingDown = 1;
+			offset += 12;
+			if (isValidMapPosition ( xi, yi + 2 ) && bg_tileOccupied ( xi*8, (yi + 2)*8 ) )
+				stack_push ( &gotHit, findSpriteIndex ( (xi) * 8, ( yi + 2 ) * 8 ) );
+			if (isValidMapPosition ( xi - 2, yi + 2 ) && bg_tileOccupied ( (xi - 2)*8, (yi + 2)*8 ) )
+				stack_push ( &gotHit, findSpriteIndex ( (xi - 2) * 8, ( yi + 2 ) * 8 ) );
+			if (isValidMapPosition ( xi + 2, yi + 2 ) && bg_tileOccupied ( (xi + 2)*8, (yi + 2)*8 ) )
+				stack_push ( &gotHit, findSpriteIndex ( (xi + 2) * 8, ( yi + 2 ) * 8 ) );
+		}
+	
+		anims[0] = offset;
+		anims[1] = offset + 1;
+		anims[2] = getTankSpecialOffset(index);
+		//play anims
+		int j;
+		for ( j = 0; j < 16; j++)
+		{
+			//character attacking
+			if ( j < 12 )
+				//sprites[index].attribute2 =  (offset + (j%2)*8);
+				sprite_setImage(index, anims[j%3]);
+			//attacked character got hit
+			if ( j == 3 )
+			{
+				int startIndex = 121;
+				while ( !stack_empty(&gotHit ) )
+				{
+					int attk = stack_pop ( & gotHit );
+					stack_push( &changeBack , attk );
+					//sprites[attk].attribute2 = findGotHitOffset ( attk );
+					sprite_setImage(attk, findGotHitOffset(attk));
+					sprite_setPos(startIndex, mysprites[attk].x, mysprites[attk].y);
+					//sprites[126].attribute2 = BLOOD_START * 8;
+					sprite_setImage(startIndex, BLOOD_START);
+					startIndex++;
+				}
+			}
+			//spurt blood
+			if ( j > 3 )
+			{
+				int k;
+				for ( k = 121; k <= 125; ++k )
+					sprite_setImage(k, BLOOD_START + ( j%3 ));
+			}
+			sprite_updateAll();
+			volatile int n;
+			for ( n = 0; n < 10000; n++);
+		}
+		//reset sprites to previous image.
+		while (!stack_empty (&changeBack) )
+		{
+			int thisSprite = stack_pop ( &changeBack );
+			sprite_resetImage(thisSprite ); 
+			sprite_updateAll();
+		}
+		sprites[index].attribute2 = prevAttackerFrame;
+	}
+	//free stacks
+	stack_free ( &gotHit );
+	stack_free ( &changeBack );
+	
+	//clear assoicated ui sprites
+	int i;
+	for ( i = 114; i < 128; ++i )
+		sprite_setPos ( i, -160, -160 );
+	
+	bg_clearMoveable();
+	
+}
+
+int getTankSpecialOffset(index)
+{
+	int rval = 0;
+	if ( mysprites[index].facingLeft || mysprites[index].facingRight )
+		rval = 17;
+	else if ( mysprites[index].facingDown )
+		rval = 18;
+	else if ( mysprites[index].facingUp )
+		rval = 19;
+	return rval;
+}
