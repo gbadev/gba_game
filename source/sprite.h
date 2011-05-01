@@ -193,6 +193,8 @@ void sprite_init()
 		sprite_setPos(n, -160, -160);
 		sprite_setImage(n, n);
 		
+		mysprites[n].attkCounter = 0;
+		
 		
     }
 	
@@ -206,24 +208,13 @@ void sprite_init()
 		mysprites[n].priority = 1;
 	}
 	
-	//chars init
-	sprite_init_tank( 0, 0 );
-	sprite_init_gren( 2, 0 );
-	sprite_init_snip( 0, 2 );
-	sprite_init_heal( 0, 8 );
-	
-	//zombs
-	for ( n = 4; n <  14; n+=2 )
-	{
-		sprite_init_zomb ( (n), 8, n/2+3);
-		sprite_init_spit ( (n+1), 9,n/2+3);
-	}
-	
-	//init cursor;
+		//init cursor;
 	sprite_setImage(127, 107);
 	
     UpdateSpriteMemory();
 }
+
+
 //init player characters
 void sprite_init_tank( int x, int y )
 {
@@ -713,6 +704,9 @@ void sprite_Attack(int index, int x, int y)
 		mysprites[attk].hp -= getAttackPower(index);
 		if ( mysprites[attk].hp <= 0 )
 			sprite_die (attk);
+			
+		//inc attk counter
+		mysprites[index].attkCounter++;
 
 		sprite_updateAll();
 		bg_clearMoveable();
@@ -1122,7 +1116,10 @@ void sprite_gren_special ( int curr, int end_x, int end_y )
 		if ( mysprites[thisSprite].hp <= 0 )
 			sprite_die (thisSprite);
 	}
-
+	
+	//decrement attk counter
+	mysprites[curr].attkCounter-=2;
+	
 	//free stacks
 	stack_free ( &gotHit );
 	stack_free ( &changeBack );
@@ -1284,6 +1281,9 @@ void sprite_snip_special ( int index, int x, int y )
 		}
 		sprites[index].attribute2 = prevAttackerFrame;
 		
+		//decrement attk counter
+		mysprites[index].attkCounter-=2;
+		
 		//free stacks
 		stack_free ( &gotHit );
 		stack_free ( &changeBack );
@@ -1425,6 +1425,8 @@ void sprite_tank_special ( int index, int x, int y )
 			sprite_updateAll();
 		}
 		sprites[index].attribute2 = prevAttackerFrame;
+		//decrement attk counter
+		mysprites[index].attkCounter-=2;
 	}
 	//free stacks
 	stack_free ( &gotHit );
@@ -1492,6 +1494,8 @@ void sprite_heal_special ( int index, int x, int y )
 			
 		if ( mysprites[thisSprite].hp > mysprites[thisSprite].maxHp )
 			mysprites[thisSprite].hp = mysprites[thisSprite].maxHp;
+		//decrement attk counter
+		mysprites[index].attkCounter-=2;
 	}
 	
 	int i;
@@ -1502,8 +1506,12 @@ void sprite_heal_special ( int index, int x, int y )
 	
 }
 
+extern void removeZombie();
 void sprite_die ( int index )
 {
+	if ( index >= 4 )
+		removeZombie();
+		
 	mysprites[index].alive = 0;
 	sprite_setPos( index, -160, -160);
 	linked_deleteByIndex (&head, index);

@@ -159,6 +159,14 @@ void linked_print(Node *nodePtr)
 	}
 }
 
+void linked_clear ( Node **nodePtr )
+{
+	while ( ! linked_isEmpty ( *nodePtr ) )
+	{
+		linked_deleteByIndex( nodePtr, (*nodePtr)->index );
+	}
+}
+
 
 int compare_ints ( int  a, int  b )
 {

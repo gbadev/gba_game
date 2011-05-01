@@ -12,6 +12,7 @@ int linked_delete(Node **nodePtr, int value);
 int linked_deleteByIndex (Node **nodePtr, int value);
 int linked_isEmpty(Node *nodePtr);
 void linked_print(Node *nodePtr);
+void linked_clear ( Node **nodePtr );
 
 #endif
 

@@ -518,6 +518,8 @@ typedef struct tagSpriteHanlder
 	short hp;
 	short maxHp;
 	
+	int attkCounter;
+	
 	u16 lastImage;
 
 }SpriteHanlder;

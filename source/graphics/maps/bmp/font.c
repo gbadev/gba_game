@@ -4,13 +4,12 @@
 //======================================================================
 //
 //	font, 8x544@8, 
-//	Transparent color : 00,00,00
 //	+ palette 256 entries, not compressed
 //	+ 65 tiles (t|f reduced) not compressed
 //	+ regular map (flat), not compressed, 1x68 
 //	Total size: 512 + 4160 + 136 = 4808
 //
-//	Time-stamp: 2011-04-30, 19:45:02
+//	Time-stamp: 2011-05-01, 00:41:51
 //	Exported by Cearn's GBA Image Transmogrifier, v0.8.6
 //	( http://www.coranac.com/projects/#grit )
 //

@@ -5,10 +5,13 @@ void gs_init();
 typedef struct tagGSHandler
 {
 	int superMode;
+	int currLvlIndex;
 	int mode;
 	int hasMoved;
 	int hasAttacked;
+	int canSpecial;
 	int curr;
+	
 
 }GSHandler;
 GSHandler myGame;
@@ -17,9 +20,41 @@ void gs_init()
 {
 	myGame.superMode = 0;
 	myGame.mode = 0;
-	myGame.hasMoved = 0;
-	myGame.hasAttacked = 0;
 	myGame.curr = 0;
+	myGame.currLvlIndex = 0;
+	myGame.hasMoved = 1;
+	myGame.hasAttacked = 1;
+	myGame.canSpecial = 0;
+}
+
+void gs_goToNextLvl()
+{
+	sprite_init();
+	myGame.currLvlIndex++;
+	bg_load ( myLvl[myGame.currLvlIndex] );
+	map_initCharacters();
+	map_initZombies ();
+	tc_init();
+}
+
+int gs_getCurrLvlIndex ( )
+{
+	return myGame.currLvlIndex;
+}
+
+int gs_getHasMoved()
+{
+	return myGame.hasMoved;
+}
+
+int gs_getHasAttacked()
+{
+	return myGame.hasAttacked;
+}
+
+int gs_getCanSpecial()
+{
+	return myGame.canSpecial;
 }
 
 void gs_updateGame()
@@ -30,10 +65,12 @@ void gs_updateGame()
 		myGame.curr = tc_getNext();
 		myGame.hasMoved = 0;	
 		myGame.hasAttacked = 0;
+		myGame.canSpecial = mysprites[myGame.curr].attkCounter/2;
 		myGame.mode = 0;
+		ui_updateStatus();
 	}
 		
-	ui_updateStatus();
+	
 		
 		
 	if ( myGame.curr < 4 )
@@ -64,7 +101,7 @@ void gs_updateGame()
 			
 			}
 			//L is special
-			else if (keyReleased(BUTTON_L) && !myGame.hasAttacked )
+			else if (keyReleased(BUTTON_L) && !myGame.hasAttacked && mysprites[myGame.curr].attkCounter/2 >= 1 )
 			{
 				sprite_setPos( 127, mysprites[myGame.curr].x, mysprites[myGame.curr].y);
 				if ( mysprites[myGame.curr].isTank )
@@ -84,6 +121,11 @@ void gs_updateGame()
 				myGame.hasAttacked  = 1;
 				myGame.mode = 0;
 			}
+			else if ( keyHeld ( BUTTON_UP ) || keyHeld ( BUTTON_DOWN ) || 
+				keyHeld ( BUTTON_LEFT ) || keyHeld ( BUTTON_RIGHT ) )
+			{
+				bg_scroll();
+			}
 		}
 		else if ( myGame.mode == 1 	)//execute move
 		{
@@ -97,6 +139,7 @@ void gs_updateGame()
 				sprite_setPos ( 127, -160, -160 );
 				bg_clearMoveable ();
 				myGame.mode = 0;
+				ui_updateStatus();
 			}
 			
 			if ( keyReleased ( BUTTON_B ) ) //cancel
@@ -122,6 +165,7 @@ void gs_updateGame()
 				
 				bg_clearMoveable();
 				myGame.mode = 0;
+				ui_updateStatus();
 			}
 			
 			if ( keyReleased ( BUTTON_B ) ) //cancel
@@ -152,6 +196,7 @@ void gs_updateGame()
 				myGame.hasAttacked = 1;
 				bg_clearMoveable();
 				myGame.mode = 0;
+				ui_updateStatus();
 			}
 			if ( keyReleased ( BUTTON_B ) ) //cancel
 			{
@@ -166,6 +211,7 @@ void gs_updateGame()
 		sprite_zombie_move( myGame.curr );
 		myGame.hasMoved = 1;
 		myGame.hasAttacked = 1;
+		ui_updateStatus();
 	}
 	if (myGame.mode )
 	{

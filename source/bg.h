@@ -21,7 +21,6 @@ typedef struct tagBgHandler
 	int numtiles;
 	int bgtiles;
 	
-	int numStartZombies;
 
 }BgHandler;
 BgHandler myBg;
@@ -104,7 +103,7 @@ void bg_init()
 	myBg.mth = 0;
 	myBg.numtiles = 0;
 	myBg.bgtiles = 0;
-	myBg.numStartZombies = 0;
+	
 	
 	myBg.select = NULL;
 	myBg.movesleft = NULL;
@@ -162,11 +161,10 @@ void bg_load ( LvlHandler thisLvl )
 	for ( j = 0; j < myBg.mth; j++ )
         for ( i = 0; i < myBg.mtw; i++ )
 		{
-			bg_loadTile(j,i, bg3map, myBg.map);
+			bg_loadTile(i,j, bg3map, myBg.map);
 		}
 	bg_clearMoveable();
 	//TODO make this passable!
-	myBg.numStartZombies = 10;
 	
 	myBg.x = -16;
 	REG_BG3HOFS = -16;
@@ -266,8 +264,13 @@ void bg_centerOver( int curr )
 	
 	if ( end_x < -16)
 		end_x = -16;
+	else if ( end_x > ( myBg.width - 240 ))
+		end_x =( myBg.width - 240 );
 	if ( end_y < -16)
 		end_y = -16;
+	else if ( end_y > ( myBg.height - 160 ))
+		end_y =( myBg.height - 160);
+	
 	
 	
 	
@@ -342,7 +345,7 @@ void bg_drawMoveableSquares ( int x, int y, int moves )
 //R:	none
 { 
 	//if the current x,y tile indexes are valid and the tile at x,y is passable
-	if (isValidMapPosition ( x, y ) && myBg.shadow[y * myBg.mtw + x ] != 0x1001 && moves > myBg.movesleft[y/2 *(myBg.mtw/2)+x/2])
+	if (isValidMapPosition ( x, y ) && myBg.shadow[y * myBg.mtw + x ] != myLvl[gs_getCurrLvlIndex()].npi && moves > myBg.movesleft[y/2 *(myBg.mtw/2)+x/2])
 	{
 		//that square is passable, thus update movement map to include it
 		myBg.movesleft[y/2*(myBg.mtw/2) + x/2] = moves;
@@ -352,16 +355,16 @@ void bg_drawMoveableSquares ( int x, int y, int moves )
 		if ( moves )
 		{
 			//check to see if tile is passable before recursively calling in all directions
-			if ( isValidMapPosition ( x-2, y ) &&myBg.shadow[y * myBg.mtw + x - 2 ] != 0x1001
+			if ( isValidMapPosition ( x-2, y ) &&myBg.shadow[y * myBg.mtw + x - 2 ] != myLvl[gs_getCurrLvlIndex()].npi
 				&& !bg_tileOccupied ( (x-2)*8, y*8 ))
 				bg_drawMoveableSquares ( x - 2, y , moves - 1 );
-			if ( isValidMapPosition ( x+2, y ) &&myBg.shadow[y * myBg.mtw + x + 2 ] != 0x1001
+			if ( isValidMapPosition ( x+2, y ) &&myBg.shadow[y * myBg.mtw + x + 2 ] != myLvl[gs_getCurrLvlIndex()].npi
 				&& !bg_tileOccupied ( (x+2)*8, y*8 ))
 				bg_drawMoveableSquares ( x + 2, y , moves - 1 );
-			if ( isValidMapPosition ( x, y-2 ) &&myBg.shadow[( y - 2 ) * myBg.mtw + x ] != 0x1001
+			if ( isValidMapPosition ( x, y-2 ) &&myBg.shadow[( y - 2 ) * myBg.mtw + x ] != myLvl[gs_getCurrLvlIndex()].npi
 				&& !bg_tileOccupied ( x*8, (y-2)*8 ))
 				bg_drawMoveableSquares ( x, y - 2 , moves - 1 );
-			if ( isValidMapPosition ( x, y+2 ) &&myBg.shadow[( y + 2 ) * myBg.mtw + x ] != 0x1001
+			if ( isValidMapPosition ( x, y+2 ) &&myBg.shadow[( y + 2 ) * myBg.mtw + x ] != myLvl[gs_getCurrLvlIndex()].npi
 				&& !bg_tileOccupied ( x*8, (y+2)*8 ))
 				bg_drawMoveableSquares ( x, y  + 2, moves - 1 );
 		}
@@ -439,6 +442,15 @@ int bg_tileOccupied ( int x, int y )
 	}
 	return result;
 }
+
+int bg_tileIsPlaceable ( int x, int y )
+{
+	int rval = 0;
+	if ( myBg.shadow[(y/8)*myBg.mtw+(x/8)] != myLvl[gs_getCurrLvlIndex()].npi )
+		rval = !bg_tileOccupied( x, y );
+	return rval;
+}
+
 
 int bg_tileOccupiedByPlayer ( int x, int y )
 //I:	the x and y coordinates of the upper left corner of a tile
@@ -557,7 +569,7 @@ void bg_drawSniperRange ( int curr )
 	thisx = xi + 2;
 	thisy = yi;
 	
-	while ( isValidMapPosition ( thisx, thisy ) && myBg.shadow[thisy*myBg.mtw+thisx] != 0x1001 )
+	while ( isValidMapPosition ( thisx, thisy ) && myBg.shadow[thisy*myBg.mtw+thisx] != myLvl[gs_getCurrLvlIndex()].npi )
 	{
 		bg_drawMoveableSquare ( thisx, thisy );
 		thisx+=2;
@@ -566,7 +578,7 @@ void bg_drawSniperRange ( int curr )
 	thisx = xi - 2;
 	thisy = yi;
 	
-	while ( isValidMapPosition ( thisx, thisy ) && myBg.shadow[thisy*myBg.mtw+thisx] != 0x1001 )
+	while ( isValidMapPosition ( thisx, thisy ) && myBg.shadow[thisy*myBg.mtw+thisx] != myLvl[gs_getCurrLvlIndex()].npi )
 	{
 		bg_drawMoveableSquare ( thisx, thisy );
 		thisx-=2;
@@ -575,7 +587,7 @@ void bg_drawSniperRange ( int curr )
 	thisx = xi;
 	thisy = yi + 2;
 	
-	while ( isValidMapPosition ( thisx, thisy ) && myBg.shadow[thisy*myBg.mtw+thisx] != 0x1001)
+	while ( isValidMapPosition ( thisx, thisy ) && myBg.shadow[thisy*myBg.mtw+thisx] != myLvl[gs_getCurrLvlIndex()].npi)
 	{
 		bg_drawMoveableSquare ( thisx, thisy );
 		thisy+=2;
@@ -584,7 +596,7 @@ void bg_drawSniperRange ( int curr )
 	thisx = xi;
 	thisy = yi - 2;
 	
-	while ( isValidMapPosition ( thisx, thisy ) && myBg.shadow[thisy*myBg.mtw+thisx] != 0x1001 )
+	while ( isValidMapPosition ( thisx, thisy ) && myBg.shadow[thisy*myBg.mtw+thisx] != myLvl[gs_getCurrLvlIndex()].npi )
 	{
 		bg_drawMoveableSquare ( thisx, thisy );
 		thisy-=2;

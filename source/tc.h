@@ -10,11 +10,14 @@ typedef struct turn_node
 Node *  head = NULL;
 void tc_init()
 {
+	if ( head != NULL )
+		linked_clear ( &head );
 	int i;
-	for ( i = 0; i < (myBg.numStartZombies+4); i++)
+	for ( i = 0; i < (myLvl[gs_getCurrLvlIndex()].numStartZombies + 4); i++)
 	{
 		linked_insert ( &head, i, mysprites[i].nextTurn);
 	}
+	tc_updateTc ();
 }
 
 /*#define ZOMB_S 6
@@ -48,7 +51,7 @@ void tc_updateTc ()
 	int i = 0;
 	Node * thisNode = head;
 	
-	int start = 16;
+	int start = 80;
 	
 	for ( i = 0; i < 10 && thisNode; ++i )
 	{
