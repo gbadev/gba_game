@@ -34,9 +34,10 @@ int main ( void )
 	//init
 	bg_init();
 	sprite_init(); //initializes and loads sprite data
+	maps_init();
     
 	//load()
-	bg_load(&x, &y, master_pal_bgsPal, parkMap, parkTiles , park_shadowMap, 256, 256);
+	bg_load(myLvl[0]);
 	//bg_load(&x,&y); //initializes and loads gravedemomap
 	//sprite_load();
 	

@@ -9,6 +9,7 @@ typedef struct node{
 
 void linked_insert(Node **nodePtr, int index, int value);
 int linked_delete(Node **nodePtr, int value);
+int linked_deleteByIndex (Node **nodePtr, int value);
 int linked_isEmpty(Node *nodePtr);
 void linked_print(Node *nodePtr);
 

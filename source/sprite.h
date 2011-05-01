@@ -1,6 +1,7 @@
 //sprite.h
 //poop
 #include <math.h>
+
 #include "master_pal_spr.h"
 #include "animations.h"
 #include "dave_tank_sprites.h"
@@ -13,6 +14,10 @@
 
 
 extern int getRange(int index);
+extern Node *  head;
+extern void ui_updateStatus();
+extern void tc_updateTc();
+
 //init sprite memory
 void sprite_init();
 
@@ -54,6 +59,11 @@ int sprite_zombie_spit ( int curr );
 //special attacks
 void sprite_gren_special ( int curr, int end_x, int end_y );
 void sprite_snip_special ( int index, int x, int y );
+void sprite_tank_special ( int curr, int end_x, int end_y );
+void sprite_heal_special ( int index, int x, int y );
+
+int getTankSpecialOffset(int index);
+void sprite_die ( int index );
 
 
 #define TANK_START 0
@@ -170,6 +180,7 @@ void sprite_init()
 		mysprites[n].isHeal = 0;
 		mysprites[n].isZomb = 0;
 		mysprites[n].isSpit = 0;
+		mysprites[n].alive = 0;
         mysprites[n].facingDown = 0;
 		mysprites[n].facingUp = 0;
 		mysprites[n].facingLeft = 0;
@@ -222,6 +233,7 @@ void sprite_init_tank( int x, int y )
 	mysprites[0].nextTurn = TANK_S;
 	mysprites[0].hp = TANK_L;
 	mysprites[0].maxHp = TANK_L;
+	mysprites[0].alive = 1;
 	sprite_setImage(0, findAnimOffset(0));
 	sprite_setImage(0, findAnimOffset(0));
 	//mysprites[0].lastImage = (TANK_START * 8) | PRIORITY(mysprites[0].priority);
@@ -234,6 +246,7 @@ void sprite_init_gren( int x, int y )
 	mysprites[1].nextTurn = GREN_S;
 	mysprites[1].hp = GREN_L;
 	mysprites[1].maxHp = GREN_L;
+	mysprites[1].alive = 1;
 	sprite_setImage(1, findAnimOffset(1));	
 	sprite_setImage(1, findAnimOffset(1));	
 	//mysprites[1].lastImage = (GREN_START * 8) | PRIORITY(mysprites[1].priority);
@@ -246,6 +259,7 @@ void sprite_init_snip( int x, int y )
 	mysprites[2].nextTurn = SNIP_S;
 	mysprites[2].hp = SNIP_L;
 	mysprites[2].maxHp = SNIP_L;
+	mysprites[2].alive = 1;
 	sprite_setImage(2, findAnimOffset(2));	
 	sprite_setImage(2, findAnimOffset(2));	
 	//mysprites[2].lastImage = (SNIP_START * 8) | PRIORITY(mysprites[2].priority);
@@ -258,6 +272,7 @@ void sprite_init_heal( int x, int y )
 	mysprites[3].nextTurn = HEAL_S;
 	mysprites[3].hp = HEAL_L;
 	mysprites[3].maxHp = HEAL_L;
+	mysprites[3].alive = 1;
 	sprite_setImage(3, findAnimOffset(3));	
 	sprite_setImage(3, findAnimOffset(3));	
 	//mysprites[3].lastImage = (HEAL_START * 8) | PRIORITY(mysprites[3].priority);
@@ -271,6 +286,7 @@ void sprite_init_zomb(int index, int x, int y )
 	mysprites[index].nextTurn = ZOMB_S;
 	mysprites[index].hp = ZOMB_L;
 	mysprites[index].maxHp = ZOMB_L;
+	mysprites[index].alive = 1;
 	sprite_setImage(index, ZOMB_START);
 	sprite_setImage(index, ZOMB_START);
 	//mysprites[index].lastImage = (ZOMB_START * 8) | PRIORITY(mysprites[index].priority);
@@ -283,6 +299,7 @@ void sprite_init_spit( int index, int x, int y )
 	mysprites[index].nextTurn = SPIT_S;
 	mysprites[index].hp = SPIT_L;
 	mysprites[index].maxHp = SPIT_L;
+	mysprites[index].alive = 1;
 	sprite_setImage(index, SPIT_START);
 	sprite_setImage(index, SPIT_START);
 	//mysprites[index].lastImage = (SPIT_START * 8) | PRIORITY(mysprites[index].priority);
@@ -367,7 +384,6 @@ void sprite_moveCursor ( int i )
 //TODO:	make function work via single cursor input...need to implement findpath function
 //R:
 {
-	bg_centerOver(i);
 	int x = mysprites[127].x/8;
 	int y = mysprites[127].y/8;
 	sprite_updateAll();
@@ -397,6 +413,7 @@ void sprite_moveDown(int i)
 //O:	sprite is moved one 16x16 tile down, with animation
 //R:	none
 {
+
 	volatile int n;
 	int j;
 	int offset = findAnimOffset(i);
@@ -415,6 +432,7 @@ void sprite_moveDown(int i)
 		sprite_updateAll();
 		for ( n = 0; n < 10000; n++);
 	}
+	bg_centerOver(i);
 }
 
 void sprite_moveUp(int i)
@@ -422,6 +440,7 @@ void sprite_moveUp(int i)
 //O:	sprite is moved one 16x16 tile up, with animation
 //R:	none
 {
+	
 	volatile int n;
 	int j;
 	int offset = findAnimOffset(i);
@@ -442,6 +461,7 @@ void sprite_moveUp(int i)
 		sprite_updateAll();
 		for ( n = 0; n < 10000; n++);
 	}
+	bg_centerOver(i);
 }
 
 void sprite_moveRight(int i)
@@ -472,6 +492,7 @@ void sprite_moveRight(int i)
 		sprite_updateAll();
 		for ( n = 0; n < 10000; n++);
 	}
+	bg_centerOver(i);
 }
 void sprite_moveLeft(int i)
 //I:	a sprite index
@@ -499,6 +520,7 @@ void sprite_moveLeft(int i)
 		sprite_updateAll();
 		for ( n = 0; n < 10000; n++);
 	}
+	bg_centerOver(i);
 }
 
 void sprite_findPath(int i, int start_x, int start_y, int end_x, int end_y )
@@ -689,6 +711,8 @@ void sprite_Attack(int index, int x, int y)
 		
 		//deinc attacked hp
 		mysprites[attk].hp -= getAttackPower(index);
+		if ( mysprites[attk].hp <= 0 )
+			sprite_die (attk);
 
 		sprite_updateAll();
 		bg_clearMoveable();
@@ -953,6 +977,8 @@ int sprite_zombie_spit ( int curr )
 		sprite_setImage(thisSprite, findGotHitOffset(thisSprite));
 		//decrement hp
 		mysprites[thisSprite].hp -= SPIT_P;
+		if ( mysprites[thisSprite].hp <= 0 )
+			sprite_die (thisSprite);
 		
 		
 		//play spit animation over sprite
@@ -971,7 +997,7 @@ int sprite_zombie_spit ( int curr )
 	stack_free ( &py );
 	
 	//clear assoicated ui sprites
-	for ( i = 114; i < 128; ++i )
+	for ( i = 114; i < 127; ++i )
 		sprite_setPos ( i, -160, -160 );
 	
 	bg_clearMoveable();
@@ -1034,6 +1060,8 @@ void sprite_gren_special ( int curr, int end_x, int end_y )
 	
 	//set explosion sprite locations
 	sprite_setImage(125, BLOOD_START );
+	if ( bg_tileOccupied ( end_x * 8 , end_y * 8 ) )
+		stack_push ( &gotHit, findSpriteIndex(end_x*8, end_y*8 ));
 	if ( isValidMapPosition( end_x + 2, end_y ))
 	{
 		sprite_setImage(124, BLOOD_START );
@@ -1090,6 +1118,9 @@ void sprite_gren_special ( int curr, int end_x, int end_y )
 		int thisSprite = stack_pop ( &changeBack );
 		sprite_resetImage(thisSprite ); 
 		sprite_updateAll();
+		mysprites[thisSprite].hp -= GRENADE_POWER;
+		if ( mysprites[thisSprite].hp <= 0 )
+			sprite_die (thisSprite);
 	}
 
 	//free stacks
@@ -1097,7 +1128,7 @@ void sprite_gren_special ( int curr, int end_x, int end_y )
 	stack_free ( &changeBack );
 	
 	//clear assoicated ui sprites
-	for ( i = 114; i < 128; ++i )
+	for ( i = 114; i < 127; ++i )
 		sprite_setPos ( i, -160, -160 );
 	
 	bg_clearMoveable();
@@ -1246,6 +1277,9 @@ void sprite_snip_special ( int index, int x, int y )
 		{
 			int thisSprite = stack_pop ( &changeBack );
 			sprite_resetImage(thisSprite ); 
+			mysprites[thisSprite].hp -= SNIPER_POWER;
+			if ( mysprites[thisSprite].hp <= 0 )
+				sprite_die (thisSprite);
 			sprite_updateAll();
 		}
 		sprites[index].attribute2 = prevAttackerFrame;
@@ -1256,7 +1290,7 @@ void sprite_snip_special ( int index, int x, int y )
 	
 		//clear assoicated ui sprites
 		int i;
-		for ( i = 114; i < 128; ++i )
+		for ( i = 114; i < 127; ++i )
 			sprite_setPos ( i, -160, -160 );
 	
 		bg_clearMoveable();
@@ -1385,6 +1419,9 @@ void sprite_tank_special ( int index, int x, int y )
 		{
 			int thisSprite = stack_pop ( &changeBack );
 			sprite_resetImage(thisSprite ); 
+			mysprites[thisSprite].hp -= SHOTGUN_POWER;
+			if ( mysprites[thisSprite].hp <= 0 )
+				sprite_die (thisSprite);
 			sprite_updateAll();
 		}
 		sprites[index].attribute2 = prevAttackerFrame;
@@ -1395,7 +1432,7 @@ void sprite_tank_special ( int index, int x, int y )
 	
 	//clear assoicated ui sprites
 	int i;
-	for ( i = 114; i < 128; ++i )
+	for ( i = 114; i < 127; ++i )
 		sprite_setPos ( i, -160, -160 );
 	
 	bg_clearMoveable();
@@ -1452,15 +1489,24 @@ void sprite_heal_special ( int index, int x, int y )
 		sprites[index].attribute2 = prevAttackerFrame;
 		
 		mysprites[thisSprite].hp += HEAL_POWER;
-	
+			
 		if ( mysprites[thisSprite].hp > mysprites[thisSprite].maxHp )
 			mysprites[thisSprite].hp = mysprites[thisSprite].maxHp;
 	}
 	
 	int i;
-	for ( i = 114; i < 128; ++i )
+	for ( i = 114; i < 127; ++i )
 		sprite_setPos ( i, -160, -160 );
 
 	bg_clearMoveable();
 	
+}
+
+void sprite_die ( int index )
+{
+	mysprites[index].alive = 0;
+	sprite_setPos( index, -160, -160);
+	linked_deleteByIndex (&head, index);
+	ui_updateStatus();
+	tc_updateTc ();
 }

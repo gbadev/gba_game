@@ -52,6 +52,12 @@ void tc_updateTc ()
 	
 	for ( i = 0; i < 10 && thisNode; ++i )
 	{
+		mysprites[i+100].x =-160;
+		mysprites[i+100].y = -160;
+	}
+	
+	for ( i = 0; i < 10 && thisNode; ++i )
+	{
 		mysprites[i+100].x = start + i * 16;
 		mysprites[i+100].y = 0;
 		//sprites[i+100].attribute2 = findAnimOffset ( thisNode->index );

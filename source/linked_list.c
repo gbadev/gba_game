@@ -90,9 +90,52 @@ int linked_delete(Node **nodePtr, int value )
 	/*value not found, return -1 to show
 	  no node removed*/
 	return -1;
-
 }
 
+int linked_deleteByIndex (Node **nodePtr, int value)
+{
+	Node *previous;
+	Node *current;
+	Node *temp;
+
+	/*First node is to be deleted*/
+	if(compare_ints(value, (*nodePtr)->index) == 0) /* value == (*nodePtr) -> data) */
+	{
+		temp = *nodePtr; /*retain pointer to memory to be freed*/
+		*nodePtr = (*nodePtr) -> next;
+        free(temp);
+		return 1;
+	}
+	else
+	{	
+		/*Must retain the previous to connect it
+		  to the node after the one that is
+		  going to be deleted*/
+		previous = *nodePtr;
+		current = (*nodePtr) -> next; /*parens needed to force correct order of ops*/
+
+		/*loop through nodes until the value is found*/
+		while(current != NULL && compare_ints((current -> index), value) != 0) /* current -> data != value */
+		{
+			previous = current;
+			current = current -> next;
+		}
+
+		/*delete current node if not NULL
+		  if node is NULL then the value
+		  was not in list*/
+		if(current != NULL)
+		{
+			temp = current; /*retain ponter to memory to be freed*/
+			previous -> next = current -> next;
+            free(temp);
+			return 1;
+		}
+	}
+	/*value not found, return -1 to show
+	  no node removed*/
+	return -1;
+}
 int linked_isEmpty(Node *nodePtr)
 {
 	return nodePtr == NULL;

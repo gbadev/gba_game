@@ -43,6 +43,9 @@
 
 //special
 #define HEAL_POWER 20
+#define GRENADE_POWER 10
+#define SNIPER_POWER 10
+#define SHOTGUN_POWER 10
 #define SPECIAL 1
 #define IDLE 0
 

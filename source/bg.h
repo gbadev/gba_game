@@ -42,8 +42,9 @@ unsigned short* bg1map =(unsigned short*) ScreenBaseBlock (23);
 //bg functions
 //init and load
 void bg_init();
-void bg_load(int *x, int *y, const u16 * currPal, const u16 * currMap, const u16 * currTiles ,const u16 * currShadow, 
-	int width, int height);
+//void bg_load(int *x, int *y, const u16 * currPal, const u16 * currMap, const u16 * currTiles ,const u16 * currShadow, 
+//	int width, int height);
+void bg_load ( LvlHandler );
 void bg_loadTile(int , int, u16 *, u16 *);
 
 //scrolling
@@ -112,7 +113,8 @@ void bg_init()
 }
 
 //should probably create a level struct to pass
-void bg_load(int *x, int *y, const u16 * currPal, const u16 * currMap, const u16 * currTiles , const u16 * currShadow, int width, int height)
+//void bg_load(int *x, int *y, const u16 * currPal, const u16 * currMap, const u16 * currTiles , const u16 * currShadow, int width, int height)
+void bg_load ( LvlHandler thisLvl )
 //I:	scrolling registers, a map pallete, a map, a map tileset, a shadowmap, the map's width and height
 //O:	the specified map is loaded into bgHandler, scrolling registers are set to upper left corner of map,
 //		initial 32x32 area loaded into bg3.
@@ -122,16 +124,19 @@ void bg_load(int *x, int *y, const u16 * currPal, const u16 * currMap, const u16
 		free ( myBg.select );
 	if ( myBg.movesleft )
 		free ( myBg.movesleft );
-	myBg.pal = currPal;
-	myBg.map = currMap;
-	myBg.tiles = currTiles;
-	myBg.shadow = currShadow;
-	myBg.width = width;
-	myBg.height = height;
-	myBg.mtw = width / 8;
-	myBg.mth = height / 8;
+	myBg.pal = thisLvl.pal;
+	myBg.map = thisLvl.map;
+	myBg.tiles = thisLvl.tiles;
+	myBg.shadow = thisLvl.shadow;
+	myBg.width = thisLvl.width;
+	myBg.height = thisLvl.height;
+	myBg.mtw = thisLvl.width / 8;
+	myBg.mth = thisLvl.height / 8;
 	myBg.numtiles = myBg.mtw * myBg.mth;
 	myBg.bgtiles = 64 *64;
+	
+	myBg.x = 0;
+	myBg.y = 0;
 	
 	myBg.select = malloc ( sizeof ( u16 ) * myBg.numtiles );
 	myBg.movesleft = malloc ( sizeof ( short ) * (myBg.numtiles/4));
@@ -139,8 +144,8 @@ void bg_load(int *x, int *y, const u16 * currPal, const u16 * currMap, const u16
     //copy the palette into the background palette memory
     DMAFastCopy((void*)myBg.pal, (void*)BGPaletteMem, 256, DMA_16NOW);
     //copy the tile images into the tile memory
-    DMAFastCopy((void*)myBg.tiles, (void*)CharBaseBlock(0), 6976/4, DMA_32NOW);		//need to change to be dynamic
-	DMAFastCopy((void*)fontTiles, (void*)CharBaseBlock(1),4416/4, DMA_32NOW);
+    DMAFastCopy((void*)myBg.tiles, (void*)CharBaseBlock(0), thisLvl.len, DMA_16NOW);		//need to change to be dynamic
+	DMAFastCopy((void*)fontTiles, (void*)CharBaseBlock(1),2208, DMA_16NOW);
     //4992 = #Tiles * 64
 
     //copy the tile map into background 0
@@ -153,12 +158,13 @@ void bg_load(int *x, int *y, const u16 * currPal, const u16 * currMap, const u16
 			k++;
 		}
     */
+	
 	for ( j = 0; j < myBg.mth; j++ )
         for ( i = 0; i < myBg.mtw; i++ )
 		{
 			bg_loadTile(j,i, bg3map, myBg.map);
 		}
-	
+	bg_clearMoveable();
 	//TODO make this passable!
 	myBg.numStartZombies = 10;
 	

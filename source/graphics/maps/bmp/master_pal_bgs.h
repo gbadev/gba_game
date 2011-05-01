@@ -4,10 +4,11 @@
 //======================================================================
 //
 //	master_pal_bgs, 16x16@8, 
+//	Transparent color : 00,00,00
 //	+ palette 52 entries, not compressed
 //	Total size: 104 = 104
 //
-//	Time-stamp: 2011-04-30, 16:15:59
+//	Time-stamp: 2011-04-30, 18:24:22
 //	Exported by Cearn's GBA Image Transmogrifier, v0.8.6
 //	( http://www.coranac.com/projects/#grit )
 //
