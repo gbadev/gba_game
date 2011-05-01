@@ -27,6 +27,13 @@ int main ( void )
 	
 	//x and y scrolling registers, index
 	int y, x;
+
+	drawStart();
+	while(!keyReleased(BUTTON_A))
+	{
+		for(x = 0; x < 150000; x++);
+	}
+
     x = -32;
 	y = -16;
 	//int curr = 0;
