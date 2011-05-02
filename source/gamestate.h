@@ -31,10 +31,20 @@ void gs_goToNextLvl()
 {
 	sprite_init();
 	myGame.currLvlIndex++;
+	if ( myGame.currLvlIndex >= 4 )
+	{
+		drawEnd ();
+		drawStart ();
+		bg_init();
+		myGame.currLvlIndex = 0;
+		sprite_init();
+	}
+	
 	bg_load ( myLvl[myGame.currLvlIndex] );
 	map_initCharacters();
 	map_initZombies ();
 	tc_init();
+	
 }
 
 int gs_getCurrLvlIndex ( )

@@ -11,7 +11,7 @@
 #define GREN_S 4
 
 //range
-#define ZOMB_M 8
+#define ZOMB_M 7
 #define SPIT_M 8
 #define HEAL_M 6
 #define SNIP_M 8
@@ -36,12 +36,12 @@
 #define GREN_L 75
 
 //power
-#define ZOMB_P 100
-#define SPIT_P 100
-#define HEAL_P 1
-#define SNIP_P 1
-#define TANK_P 1
-#define GREN_P 1
+#define ZOMB_P 10
+#define SPIT_P 8
+#define HEAL_P 6
+#define SNIP_P 8
+#define TANK_P 10
+#define GREN_P 8
 
 //special
 #define HEAL_POWER 20

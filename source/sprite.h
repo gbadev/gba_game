@@ -344,7 +344,7 @@ void sprite_draw( int index, int x, int y )
 		sprites[index].attribute0 = COLOR_256 | SQUARE | y ;
 	}
 	else
-	{//special case for turn counter shit
+	{//special case for turn counter
 		sprites[index].attribute1 = SIZE_16 | (mysprites[index].x);
 		sprites[index].attribute0 = COLOR_256 | SQUARE | mysprites[index].y ;
 	}
@@ -361,7 +361,9 @@ void sprite_updateAll()
 	for ( i = 0; i < 128; i++ )
 	{
 		//if ( isValidMapPosition( mysprites[i].x - myBg.x, mysprites[i].y - myBg.y ) )
-		if ( mysprites[i].x - myBg.x >= 0 && mysprites[i].y - myBg.y >= 0 &&
+		if ( i >=100 && i < 110 )
+			sprite_draw( i, mysprites[i].x, mysprites[i].y );
+		else if ( mysprites[i].x - myBg.x >= 0 && mysprites[i].y - myBg.y >= 0 &&
 			mysprites[i].x - myBg.x < 240 && mysprites[i].y - myBg.y < 240 )
 			sprite_draw ( i, mysprites[i].x - myBg.x, mysprites[i].y - myBg.y );
 		else
@@ -702,7 +704,7 @@ void sprite_Attack(int index, int x, int y)
 		sprite_setPos(127, -160,-160);
 		
 		//deinc attacked hp
-		mysprites[attk].hp -= getAttackPower(index);
+		mysprites[attk].hp -= getAttackPower(index) + (rand() % getAttackPower(index));
 		if ( mysprites[attk].hp <= 0 )
 			sprite_die (attk);
 			
@@ -971,7 +973,7 @@ int sprite_zombie_spit ( int curr )
 		//change sprite to got hit
 		sprite_setImage(thisSprite, findGotHitOffset(thisSprite));
 		//decrement hp
-		mysprites[thisSprite].hp -= SPIT_P;
+		mysprites[thisSprite].hp -= SPIT_P + (rand() % SPIT_P);
 		if ( mysprites[thisSprite].hp <= 0 )
 			sprite_die (thisSprite);
 		
