@@ -1,10 +1,13 @@
 void ui_updateStatus();
 void ui_draw();
 
-extern void tty_printChar ( int , int, char );
+
+//accessors and helpers
 extern int gs_getHasMoved();
 extern int gs_getHasAttacked();
+extern int gs_getCanSpecial();
 extern void tty_printString (  int x, int y, char * str ,int len);
+extern void tty_printChar ( int , int, char );
 
 void ui_updateStatus()
 {
@@ -39,26 +42,26 @@ void ui_updateStatus()
 	tty_printChar(0, 4, tens);
  	tty_printChar(1, 4, ones);
 	tty_printChar(0, 5, 'S');
-	tty_printChar(1, 5, mysprites[0].attkCounter/2 + '0');
+	tty_printChar(1, 5, mysprites[0].attkCounter + '0');
 	
 	tens = mysprites[1].hp/10 + '0';
 	ones = mysprites[1].hp%10 + '0';
 	tty_printChar(0, 8, tens);
  	tty_printChar(1, 8, ones);
 	tty_printChar(0, 9, 'S');
-	tty_printChar(1, 9, mysprites[1].attkCounter/2+ '0');
+	tty_printChar(1, 9, mysprites[1].attkCounter+ '0');
 	tens = mysprites[2].hp/10 + '0';
 	ones = mysprites[2].hp%10+ '0';
 	tty_printChar(0, 12, tens);
  	tty_printChar(1, 12, ones);
 	tty_printChar(0, 13, 'S');
-	tty_printChar(1, 13, mysprites[2].attkCounter/2+ '0');
+	tty_printChar(1, 13, mysprites[2].attkCounter+ '0');
 	tens = mysprites[3].hp/10 + '0';
 	ones = mysprites[3].hp%10+ '0';
 	tty_printChar(0, 16, tens);
  	tty_printChar(1, 16, ones);
 	tty_printChar(0, 17, 'S');
-	tty_printChar(1, 17, mysprites[3].attkCounter/2+ '0');
+	tty_printChar(1, 17, mysprites[3].attkCounter+ '0');
 	
 	/*tty_printChar(0, 8, (char)(mysprites[111].hp/10));
  	tty_printChar(1, 8, (char)(mysprites[111].hp%10));

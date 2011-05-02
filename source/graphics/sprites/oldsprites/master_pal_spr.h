@@ -1,0 +1,24 @@
+
+//{{BLOCK(master_pal_spr)
+
+//======================================================================
+//
+//	master_pal, 16x16@8, 
+//	+ palette 42 entries, not compressed
+//	Total size: 84 = 84
+//
+//	Time-stamp: 2011-04-23, 02:35:40
+//	Exported by Cearn's GBA Image Transmogrifier, v0.8.6
+//	( http://www.coranac.com/projects/#grit )
+//
+//======================================================================
+
+#ifndef GRIT_MASTER_PAL_SPR_H
+#define GRIT_MASTER_PAL_SPR_H
+
+#define master_pal_sprPalLen 84
+extern const unsigned short master_pal_sprPal[42];
+
+#endif // GRIT_MASTER_PAL_SPR_H
+
+//}}BLOCK(master_pal_spr)

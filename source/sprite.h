@@ -77,6 +77,7 @@ void sprite_die ( int index );
 #define SPITBALL_START 111
 #define BLOOD_START 114
 #define HEALANIM_START 117
+#define EXPLOSION_START 119
 
 /*
 	0 dave_tank_sprites - 2560
@@ -115,7 +116,7 @@ const unsigned int the_sprites_lengths[7] = {
 	2176,
 	2176,
 	2432,
-	1536
+	1792
 };
 const unsigned short *the_sprites[7] = {
 	dave_tank_spritesTiles,
@@ -1053,33 +1054,33 @@ void sprite_gren_special ( int curr, int end_x, int end_y )
 	stack_init ( &gotHit);
 	
 	//set explosion sprite locations
-	sprite_setImage(125, BLOOD_START );
+	sprite_setImage(125, EXPLOSION_START );
 	if ( bg_tileOccupied ( end_x * 8 , end_y * 8 ) )
 		stack_push ( &gotHit, findSpriteIndex(end_x*8, end_y*8 ));
 	if ( isValidMapPosition( end_x + 2, end_y ))
 	{
-		sprite_setImage(124, BLOOD_START );
+		sprite_setImage(124, EXPLOSION_START );
 		sprite_setPos( 124, (end_x+2)*8, end_y*8);
 		if ( bg_tileOccupied ( (end_x+2)*8, end_y*8 ))
 			stack_push ( &gotHit, findSpriteIndex((end_x+2)*8, end_y*8 ));		
 	}
 	if ( isValidMapPosition( end_x - 2, end_y ))
 	{
-		sprite_setImage(123, BLOOD_START );
+		sprite_setImage(123, EXPLOSION_START );
 		sprite_setPos( 123, (end_x-2)*8, end_y*8);
 		if ( bg_tileOccupied ( (end_x-2)*8, end_y*8 ))
 			stack_push ( &gotHit, findSpriteIndex((end_x-2)*8, end_y*8 ));		
 	}
 	if ( isValidMapPosition( end_x, end_y + 2 ))
 	{
-		sprite_setImage(122, BLOOD_START );
+		sprite_setImage(122, EXPLOSION_START );
 		sprite_setPos( 122, (end_x)*8, (end_y+2)*8);
 		if ( bg_tileOccupied ( (end_x)*8, (end_y+2)*8 ))
 			stack_push ( &gotHit, findSpriteIndex((end_x)*8, (end_y+2)*8 ));		
 	}
 	if ( isValidMapPosition( end_x, end_y - 2 ))
 	{
-		sprite_setImage(121, BLOOD_START );
+		sprite_setImage(121, EXPLOSION_START );
 		sprite_setPos( 121, (end_x)*8, (end_y-2)*8);
 		if ( bg_tileOccupied ( (end_x)*8, (end_y-2)*8 ))
 			stack_push ( &gotHit, findSpriteIndex((end_x)*8, (end_y-2)*8 ));		
@@ -1101,7 +1102,7 @@ void sprite_gren_special ( int curr, int end_x, int end_y )
 	for ( i = 0; i < 16; ++i )
 	{
 		for ( j = 121; j <= 125; ++j)
-			sprite_setImage(j, BLOOD_START + ( i%3 )); //change to GRENADE_START once it exists
+			sprite_setImage(j, EXPLOSION_START + ( i%2 )); //change to GRENADE_START once it exists
 		sprite_updateAll();
 		for ( n = 0; n < 20000; ++n);
 	}	
@@ -1118,7 +1119,8 @@ void sprite_gren_special ( int curr, int end_x, int end_y )
 	}
 	
 	//decrement attk counter
-	mysprites[curr].attkCounter-=2;
+	mysprites[curr].attkCounter--;
+	ui_updateStatus();
 	
 	//free stacks
 	stack_free ( &gotHit );
@@ -1282,7 +1284,8 @@ void sprite_snip_special ( int index, int x, int y )
 		sprites[index].attribute2 = prevAttackerFrame;
 		
 		//decrement attk counter
-		mysprites[index].attkCounter-=2;
+		mysprites[index].attkCounter--;
+		ui_updateStatus();
 		
 		//free stacks
 		stack_free ( &gotHit );
@@ -1426,7 +1429,8 @@ void sprite_tank_special ( int index, int x, int y )
 		}
 		sprites[index].attribute2 = prevAttackerFrame;
 		//decrement attk counter
-		mysprites[index].attkCounter-=2;
+		mysprites[index].attkCounter--;
+		ui_updateStatus();
 	}
 	//free stacks
 	stack_free ( &gotHit );
@@ -1495,7 +1499,8 @@ void sprite_heal_special ( int index, int x, int y )
 		if ( mysprites[thisSprite].hp > mysprites[thisSprite].maxHp )
 			mysprites[thisSprite].hp = mysprites[thisSprite].maxHp;
 		//decrement attk counter
-		mysprites[index].attkCounter-=2;
+		mysprites[index].attkCounter--;
+		ui_updateStatus();
 	}
 	
 	int i;
@@ -1511,7 +1516,8 @@ void sprite_die ( int index )
 {
 	if ( index >= 4 )
 		removeZombie();
-		
+	
+	mysprites[index].hp = 0;
 	mysprites[index].alive = 0;
 	sprite_setPos( index, -160, -160);
 	linked_deleteByIndex (&head, index);

@@ -7,10 +7,17 @@
 #include "park_shadow.h"
 #include "finale.h"
 #include "finale_shadow.h"
-////////////////////remove
-#include "gravedemo.h"
-#include "gravedemoshadow.h"
+#include "graveyard.h"
+#include "graveyard_shadow.h"
+#include "master_bg_pal.h"
+//bitmaps
+#include "gba_title_screen.h"
+#include "zombie_brain.h"
 
+////////////////////remove
+
+
+extern int bg_tileIsPlaceable( int, int );
 extern int gs_getCurrLvlIndex ( );
 //init chars
 extern void sprite_init_tank( int x, int y );
@@ -54,7 +61,7 @@ void maps_init()
 {
 	//thoms lvl
 	//bg_load(&x, &y, master_pal_bgsPal, parkMap, parkTiles , park_shadowMap, 256, 256);
-	myLvl[0].pal = parkPal;
+	myLvl[0].pal = master_bg_palPal;
 	myLvl[0].tiles = parkTiles;
 	myLvl[0].map = parkMap;
 	myLvl[0].shadow = park_shadowMap;
@@ -76,7 +83,7 @@ void maps_init()
 	
 	
 	//scotts lvl
-	myLvl[1].pal =pizzaPal;
+	myLvl[1].pal =master_bg_palPal;
 	myLvl[1].tiles = pizzaTiles;
 	myLvl[1].map = pizzaMap;
 	myLvl[1].shadow = pizza_shadowMap;
@@ -97,17 +104,17 @@ void maps_init()
 	myLvl[1].heal_y = 0;
 
 	//daves lvl
-	myLvl[2].pal = gravedemoPal;
-	myLvl[2].tiles = gravedemoTiles;
-	myLvl[2].map = gravedemoMap;
-	myLvl[2].shadow =gravedemoshadowMap;
+	myLvl[2].pal = master_bg_palPal;
+	myLvl[2].tiles = graveyardTiles;
+	myLvl[2].map = graveyardMap;
+	myLvl[2].shadow =graveyard_shadowMap;
 	myLvl[2].width = 512;
 	myLvl[2].height =512;
 	myLvl[2].numStartZombies =96;
 	myLvl[2].maxZombies =96;
 	myLvl[2].numZombies = 96;
 	myLvl[2].len = 3488;
-	myLvl[2].npi = 0x1001;
+	myLvl[2].npi = 0x0002;
 	myLvl[2].tank_x = 0;
 	myLvl[2].tank_y = 0;
 	myLvl[2].gren_x = 1;
@@ -118,7 +125,7 @@ void maps_init()
 	myLvl[2].heal_y = 0;
 
 	//seans lvl
-	myLvl[3].pal = finalePal;
+	myLvl[3].pal = master_bg_palPal;
 	myLvl[3].tiles =finaleTiles;
 	myLvl[3].map =finaleMap;
 	myLvl[3].shadow =finale_shadowMap;

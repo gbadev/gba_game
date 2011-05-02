@@ -38,7 +38,7 @@ int tc_getNext()
 	linked_delete(&head, thisTurn); 
 	
 	//update values
-	thisTurn += getSpeed ( index );
+	thisTurn += getSpeed ( index ) + (rand()%getSpeed(index));
 	
 	
 	//add updated node

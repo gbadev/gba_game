@@ -65,7 +65,7 @@ void gs_updateGame()
 		myGame.curr = tc_getNext();
 		myGame.hasMoved = 0;	
 		myGame.hasAttacked = 0;
-		myGame.canSpecial = mysprites[myGame.curr].attkCounter/2;
+		myGame.canSpecial = mysprites[myGame.curr].attkCounter;
 		myGame.mode = 0;
 		ui_updateStatus();
 	}
@@ -101,7 +101,7 @@ void gs_updateGame()
 			
 			}
 			//L is special
-			else if (keyReleased(BUTTON_L) && !myGame.hasAttacked && mysprites[myGame.curr].attkCounter/2 >= 1 )
+			else if (keyReleased(BUTTON_L) && !myGame.hasAttacked && mysprites[myGame.curr].attkCounter >= 1 )
 			{
 				sprite_setPos( 127, mysprites[myGame.curr].x, mysprites[myGame.curr].y);
 				if ( mysprites[myGame.curr].isTank )
@@ -213,10 +213,21 @@ void gs_updateGame()
 		myGame.hasAttacked = 1;
 		ui_updateStatus();
 	}
-	if (myGame.mode )
+	if (myGame.mode != 0)
 	{
 		sprite_moveCursor(myGame.curr);
 	}
+	//check if player has lost
+	if (!( mysprites[0].alive || mysprites[1].alive || mysprites[2].alive || mysprites[3].alive ))
+	{
+		drawEnd ();
+		drawStart ();
+
+		bg_init();
+		myGame.currLvlIndex = -1;
+		gs_goToNextLvl();
+	}
+	
 }
 		
 		

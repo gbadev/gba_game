@@ -20,22 +20,30 @@
 #include "tty.h"
 #include "gamestate.h"
 
+
+//sound 
+#include "sean.h"
+#include "sound.h"
+
+
+
 int main ( void )
 {
 	//crappy loop counter
     volatile int n;
+	
+	init_sound();
+	
+	PlaySound( &bigGunSound );
+	drawStart();
 
-	//drawStart();
-	//while(!keyReleased(BUTTON_A))
-	//{
-		//for(x = 0; x < 150000; x++);
-	//}
 	
 	//init
 	bg_init();
 	sprite_init(); //initializes and loads sprite data
 	maps_init();
 	gs_init();
+	
     
 	myGame.currLvlIndex = -1;
 	myGame.mode = 0;
@@ -55,7 +63,7 @@ int main ( void )
         //button polling
         keyPoll();
 		
-		if ( myLvl[gs_getCurrLvlIndex()].numZombies <= 0 )
+		if ( myLvl[gs_getCurrLvlIndex()].numZombies <= 0 || keyReleased ( BUTTON_START ))
 			gs_goToNextLvl();
 			
 		gs_updateGame();
